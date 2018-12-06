@@ -6,27 +6,21 @@ for(let x = input.minX; x <= input.maxX; x++) {
     const currentRow = [];
     grid.push(currentRow);
     for(let y = input.minY; y <= input.maxY; y++) {
-        const closest = determineClosest(x, y);
-        currentRow.push(closest);
+        const withenDistance = withinDistance(x,y, 10000);
+        currentRow.push(withenDistance);
     }
 }
+const rowSums = grid.map(row => _.filter(row).length);
+const area = _.sum(rowSums);
 
-for(let i = 0; i < grid.length; i++) {
-    const row = grid[i];
-    if(i === 0 || i === (grid.length - 1)) {
-        filterRow(row);
-    }
-    else {
-        filterNode(row[0]);
-        filterNode(row[row.length - 1]);
-        row.forEach(countOne);
-    }
+console.log(area);
+
+function withinDistance(x, y, distance) {
+    const distanceFunction = distanceFromPointFunction(x,y);
+    const distances = input.arr.map(distanceFunction);
+    const distanceSum = _.sum(distances);
+    return distanceSum <= distance;
 }
-
-const notFiltered = input.arr.filter(node => !node.isFiltered);
-const max = _.maxBy(notFiltered, 'count');
-
-console.log(max);
 
 function countOne(node) {
     if(node) {
