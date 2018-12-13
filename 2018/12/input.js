@@ -80,8 +80,8 @@ const jeremyRules = ".##.. => #\n" +
     "#.#.# => #\n" +
     "..### => #";
 const _ = require('lodash');
-const ruleInputArray = jeremyRules.split('\n').map(s => s.split(' => '));
+const ruleInputArray = ruleInput.split('\n').map(s => s.split(' => '));
 const rules = _.fromPairs(ruleInputArray);
 
-module.exports = {rules, stateInput:jeremyState};
+module.exports = {rules, stateInput};
 
