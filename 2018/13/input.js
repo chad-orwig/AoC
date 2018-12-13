@@ -1,5 +1,5 @@
 const _ = require('lodash');
-
+const colors = require('colors');
 const input =
     "                                               /---------\\                                                                                            \n" +
     "                                               |         |/---------------\\                                                                           \n" +
@@ -274,15 +274,19 @@ function printLoc() {
 }
 
 function printCart() {
+
+    if(this.dead) {
+        return 'X'.red;
+    }
     switch(this.direction) {
         case directions.up:
-            return '^';
+            return '↑'.green;
         case directions.right:
-            return '>';
+            return '→'.green;
         case directions.left:
-            return '<';
+            return '←'.green;
         case directions.down:
-            return 'v';
+            return '↓'.green;
     }
 }
 

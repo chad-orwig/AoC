@@ -26,7 +26,9 @@ function loop() {
 function collisionCheck(cart) {
     const loc = cart.printLoc();
     if(cartMap[loc]) {
+        cart.dead = true;
         const wreckedCart = cartMap[loc];
+        wreckedCart.dead = true;
         delete cartMap[loc];
         return wreckedCart;
     }
@@ -57,12 +59,15 @@ function print() {
     console.log(drawing);
 }
 
-while(true) {
+function recurse() {
     loop();
+    print();
     const remainingCarts = Object.values(cartMap);
-    console.log(`${remainingCarts.length} carts remaining`);
     if(remainingCarts.length === 1) {
         console.log(remainingCarts[0]);
         process.exit();
     }
+    setTimeout(recurse, 150);
 }
+
+recurse();
