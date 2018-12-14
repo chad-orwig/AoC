@@ -276,17 +276,17 @@ function printLoc() {
 function printCart() {
 
     if(this.dead) {
-        return 'X'.red;
+        return 'X'.bgRed.bold;
     }
     switch(this.direction) {
         case directions.up:
-            return '↑'.green;
+            return '↑'.bgGreen.bold;
         case directions.right:
-            return '→'.green;
+            return '→'.bgGreen.bold;
         case directions.left:
-            return '←'.green;
+            return '←'.bgGreen.bold;
         case directions.down:
-            return '↓'.green;
+            return '↓'.bgGreen.bold;
     }
 }
 
