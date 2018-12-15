@@ -7,9 +7,13 @@ function bfs(startingState, findNextStates, heuristic, keepFunction) {
     const visited = {};
     visited[JSON.stringify(startingState)] = true;
     let closest = heuristic(startingState);
+    const ans =[];
     while(queue.length) {
         const currentState = queue.shift();
-        const nextStates = findNextStates(currentState.stateInput);
+        if(ans.steps && currentState.steps >= ans.steps) {
+            return ans;
+        }
+        const nextStates = findNextStates(currentState.state);
         const removeVisited = _.filter(nextStates, state => {
             const stateString = JSON.stringify(state);
             if(visited[stateString]) {
@@ -22,11 +26,12 @@ function bfs(startingState, findNextStates, heuristic, keepFunction) {
             const newState = removeVisited[i];
             const hVal = heuristic(newState);
             if(hVal === 0) {
-                return {
+                ans.push({
                     state : newState,
                     prev  : currentState,
                     steps : currentState.steps + 1
-                };
+                });
+                ans.steps = currentState.steps + 1;
             }
             closest = Math.min(closest, hVal);
             if(!keepFunction || keepFunction(closest, hVal)) {
