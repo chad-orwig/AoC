@@ -100,7 +100,7 @@ Scan.prototype.findBottom = function(x, y) {
             const left = this.findLeft(x, test -1);
             const right = this.findRight(x, test - 1);
             if(left === undefined && right === undefined) {
-                console.log(`Filling ${x}, ${test - 1}`);
+                // console.log(`Filling ${x}, ${test - 1}`);
                 this.set(x, test - 1, true);
                 this.fillLeft(x, test - 1);
                 this.fillRight(x, test - 1);
@@ -195,13 +195,25 @@ const scan = new Scan(input);
 //
 // }
 scan.findBottom(500, 1);
+
+
+console.log(scan);
 const result = _.chain(scan)
-    .filter(item => (item === true) || (item === false))
+    .filter((item, key) =>{
+        const keep = (item === true) || (item === false);
+        if(keep) {
+            const [x, y] = key.split(',');
+            if(scan.minx > x || scan.maxx < x || scan.miny > y || scan.maxy < y) {
+                console.error(key);
+            }
+        }
+        return keep;
+    })
     .map(() => 1)
     .sum()
     .value();
 
-console.log(scan.print());
+// console.log(scan.print());
 console.log(result);
 console.log('Actually was 39162');
 
