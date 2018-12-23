@@ -13,7 +13,7 @@ function bfs(startingState, findNextStates, heuristic, keepFunction) {
         if(ans.steps && currentState.steps >= ans.steps) {
             return ans;
         }
-        const nextStates = findNextStates(currentState.state);
+        const nextStates = findNextStates(currentState.state, currentState.steps);
         const removeVisited = _.filter(nextStates, state => {
             const stateString = JSON.stringify(state);
             if(visited[stateString]) {
