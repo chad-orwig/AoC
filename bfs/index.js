@@ -1,11 +1,14 @@
 const _ = require('lodash');
-function bfs(startingState, findNextStates, heuristic, keepFunction) {
-    const queue = [{
+function bfs(startingState, findNextStates, heuristic, keepFunction, customWriteThroughFunction, customInsertFunction) {
+    const insert = customInsertFunction || defaultInsert;
+    const writeThrough = customWriteThroughFunction || defaultWriteThrough;
+    const queue = [];
+    insert(queue, {
         state : startingState,
         steps : 0
-    }];
+    });
     const visited = {};
-    visited[JSON.stringify(startingState)] = true;
+    writeThrough(visited, startingState);
     let closest = heuristic(startingState);
     const ans =[];
     while(queue.length) {
@@ -15,12 +18,7 @@ function bfs(startingState, findNextStates, heuristic, keepFunction) {
         }
         const nextStates = findNextStates(currentState.state, currentState.steps);
         const removeVisited = _.filter(nextStates, state => {
-            const stateString = JSON.stringify(state);
-            if(visited[stateString]) {
-                return false;
-            }
-            visited[stateString] = true;
-            return true;
+            return writeThrough(visited, state);
         });
         for(let i = 0; i < removeVisited.length; i++) {
             const newState = removeVisited[i];
@@ -35,7 +33,7 @@ function bfs(startingState, findNextStates, heuristic, keepFunction) {
             }
             closest = Math.min(closest, hVal);
             if(!keepFunction || keepFunction(closest, hVal)) {
-                queue.push({
+                insert(queue,{
                     state : newState,
                     prev  : currentState,
                     steps : currentState.steps + 1
@@ -44,6 +42,18 @@ function bfs(startingState, findNextStates, heuristic, keepFunction) {
         }
 
     }
+}
+
+function defaultInsert(queue, state) {
+    queue.push(state);
+}
+
+function defaultWriteThrough(visited, state) {
+    const stringified = JSON.stringify(state);
+    if(visited[stringified]) return false;
+
+    visited[stringified] = true;
+    return true;
 }
 
 module.exports = bfs;
