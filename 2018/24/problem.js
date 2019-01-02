@@ -1,16 +1,41 @@
 const {immuneSystem, infection} = require('./input');
 const _ = require('lodash');
+let result;
+let boost = 0;
+let lowest
+while(!result) {
+    boost ++;
+    result = test(boost);
+}
+// test(10000);
+function test(boost) {
+    let is = _.cloneDeep(immuneSystem),
+    inf = _.cloneDeep(infection);
 
-let is = immuneSystem,
-    inf = infection;
+    is.forEach(group => {
+        group.attack += boost;
+    });
+    let lastIs,
+        lastInf;
+    while(is.length && inf.length) {
+        
+        fight(is, inf);
+        is = _.filter(is, 'units');
+        inf = _.filter(inf, 'units');
 
-while(is.length && inf.length) {
-    fight(is, inf);
-    is = _.filter(is, 'units');
-    inf = _.filter(inf, 'units');
+        const isUnits = units(is);
+        const infUnits = units(inf);
+        if((lastInf === infUnits) && (lastIs === isUnits)) {
+            return false;
+        }
+        lastIs = isUnits;
+        lastInf = infUnits;
 
-    console.log(`Immune System: ${units(is)}`);
-    console.log(`Infection: ${units(inf)}`);
+        console.log(`Immune System: ${isUnits}`);
+        console.log(`Infection: ${infUnits}`);
+    }
+
+    return is.length;
 }
 
 function units(army) {
