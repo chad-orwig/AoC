@@ -9,7 +9,7 @@
   "author": "Chad Orwig",
   "license": "ISC",
   "dependencies": {
-    "lodash": "^4.17.4",
+    "lodash": "^4.17.13",
     "md5": "^2.2.1",
     "moment": "^2.19.3"
   }
