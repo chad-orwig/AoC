@@ -2,7 +2,7 @@ const process = require('process');
 const childProcess = require('child_process');
 const [year, problemNumber] = process.argv.slice(2);
 
-const scriptPath = `./${year}/${problemNumber}/problem.js`;
+const scriptPath = `./${year}/${problemNumber}`;
 
 const child = childProcess.fork(scriptPath);
 
