@@ -41,7 +41,7 @@ function readVal(program, index, mode) {
     }
 }
 
-function doOp(index, arr, getInput, doOutput) {
+function doOp(index, arr, getInput) {
     const {command, modes:[mode1, mode2, mode3]} = parseCommand(arr[index]);
     let val;
     switch(command) {
@@ -61,8 +61,10 @@ function doOp(index, arr, getInput, doOutput) {
             return index + 2;
         
         case OUTPUT:
-            doOutput(readVal(arr, index + 1, mode1));
-            return index + 2;
+            return {
+                out : readVal(arr, index + 1, mode1),
+                index : index + 2
+            };
         
         case JUMP_TRUE:
             if(readVal(arr, index + 1, mode1)) {
@@ -92,13 +94,19 @@ function doOp(index, arr, getInput, doOutput) {
     
 }
 
-function doProgram(program, input, doOutput=console.log) {
+function* doProgram(program, input) {
     const getInput = isFunction(input) ? input : () => input;
     const myProgram = [...program];
     let index = 0;
 
     while(myProgram[index] !== 99) {
-        index = doOp(index, myProgram, getInput, doOutput);
+        const res = doOp(index, myProgram, getInput);
+        if(res.out !== undefined) {
+            yield res.out;
+            index = res.index;
+        } else {
+            index = res;
+        }
     }
     return myProgram[0];
 }
