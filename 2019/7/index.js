@@ -65,7 +65,7 @@ function runProgramsPart2(phases) {
 }
 
 function* buildAmplifier(phase) {
-    yield* intCodeGen(program, inputFunction(phase));
+    return yield* intCodeGen(program, inputFunction(phase));
 }
 
 const partTwoPossibilities = permutations([5,6,7,8,9]);
