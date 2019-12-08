@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "problem" : "node runProblem.js 2019"
+    "problem": "node runProblem.js 2019",
+    "lint": "eslint 2019"
   },
   "author": "",
   "license": "ISC",
@@ -14,5 +15,8 @@
     "linked-list": "^1.0.4",
     "lodash": "^4.17.15",
     "moment": "^2.22.2"
+  },
+  "devDependencies": {
+    "eslint": "^6.7.2"
   }
 }

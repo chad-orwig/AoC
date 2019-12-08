@@ -4,7 +4,7 @@ let nsTotal = 0;
 let ewTotal = 0;
 let currentDirection = 'N';
 
-directionMap = {
+const directionMap = {
     N : {
         R : 'E',
         L : 'W',
