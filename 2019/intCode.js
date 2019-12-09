@@ -110,7 +110,6 @@ function jump(program, index, [mode1, mode2], base, ifTrue) {
 
 function doOp(index, program, inputGenerator, base) {
     const {command, modes} = parseCommand(getOrDefault(program, index));
-    const [mode1, mode2] = modes;
     let val;
     switch(command) {
         case HALT:
@@ -123,12 +122,12 @@ function doOp(index, program, inputGenerator, base) {
             return mult(program, index, modes, base);
 
         case INPUT:
-            writeVal(program, index + 1, mode1, base, inputGenerator.next().value);
+            writeVal(program, index + 1, modes[0], base, inputGenerator.next().value);
             return { index: index + 2};
         
         case OUTPUT:
             return {
-                out : readVal(program, index + 1, mode1, base),
+                out : readVal(program, index + 1, modes[0], base),
                 index : index + 2
             };
         
@@ -147,7 +146,7 @@ function doOp(index, program, inputGenerator, base) {
         case BASE_OFFSET:
             return {
                 index : index + 2,
-                adjustment : readVal(program, index + 1, mode1, base)
+                adjustment : readVal(program, index + 1, modes[0], base)
             }
         default:
             throw `Unknown Command ${command} read from ${program[index]} at index ${index}`;
