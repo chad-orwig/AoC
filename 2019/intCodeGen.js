@@ -95,7 +95,8 @@ function doOp(index, arr, inputGenerator) {
 }
 
 function* doProgram(program, input) {
-    const inputGenerator = input.next ? input : (function* (){ while(true) { yield input }})();
+    const inputIsFunction = isFunction(input);
+    const inputGenerator = input.next ? input : (function* (){ while(true) { yield inputIsFunction ? input() : input }})();
     const myProgram = [...program];
     let index = 0;
 
