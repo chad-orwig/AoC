@@ -38,24 +38,23 @@ phasePossibilities.forEach(phases => {
 console.log(maxThruster);
 
 function runProgramsPart2(phases) {
+    input = 0;
     const amplifiers = [];
     let finished = false;
-    let ans = 0;
-    const programAInput = function* () {
-        yield phases[0];
-        while(true) {
-            yield ans;
-        }
-    }
-    amplifiers.push(intCode(program, programAInput()));
+    
+    amplifiers.push(intCode(program, inputFunction(phases[0])));
+
     for(let i = 1; i < phases.length; i++) {
         amplifiers.push(intCode(program, amplifierInput(phases[i], amplifiers[i - 1])));
     }
+
     const lastAmp = amplifiers[amplifiers.length - 1];
+
     for(let value of lastAmp) {
-        ans = value;
+        input = value;
     }
-    return ans;
+    
+    return input;
 }
 
 function* amplifierInput(phase, inputAmplifier) {
