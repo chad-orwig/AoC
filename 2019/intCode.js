@@ -32,14 +32,22 @@ function parseCommand(val) {
     return {command, modes}
 }
 
+function getOrDefault(program, index) {
+    return program[index] || 0;
+}
+
+function nestedGetOrDefault(program, index, base=0) {
+    return getOrDefault(program, getOrDefault(program, index) + base);
+}
+
 function readVal(program, index, mode, base) {
     switch(mode) {
         case POSITION_MODE :
-            return program[program[index] || 0] || 0;
+            return nestedGetOrDefault(program, index);
         case IMMEDIATE_MODE:
-            return program[index] || 0;
+            return getOrDefault(program, index);
         case RELATIVE_MODE:
-            return program[base + (program[index] || 0)] || 0;
+            return nestedGetOrDefault(program, index, base);
         default:
             throw `Unknown mode: ${mode}`;
     }
@@ -60,64 +68,90 @@ function writeVal(program, index, mode, base, value) {
     }
 }
 
-function doOp(index, arr, inputGenerator, base) {
-    const {command, modes:[mode1, mode2, mode3]} = parseCommand(arr[index] || 0);
+function add(program, index, [mode1, mode2, mode3], base) {
+    const sum = 
+        readVal(program, index + 1, mode1, base) + 
+        readVal(program, index + 2, mode2, base);
+    writeVal(program, index + 3, mode3, base, sum);
+    return { index: index + 4};
+}
+
+function mult(program, index, [mode1, mode2, mode3], base) {
+    const product = 
+        readVal(program, index + 1, mode1, base) * 
+        readVal(program, index + 2, mode2, base)
+
+    writeVal(program, index + 3, mode3, base, product);
+    return { index: index + 4};
+}
+
+function lt(program, index, [mode1, mode2, mode3], base) {
+    const param1 = readVal(program, index + 1, mode1, base);
+    const param2 = readVal(program, index + 2, mode2, base);
+    const val = param1 < param2 ? 1 : 0
+    writeVal(program, index + 3, mode3, base, val);
+    return { index: index + 4};
+}
+
+function eq(program, index, [mode1, mode2, mode3], base) {
+    const param1 = readVal(program, index + 1, mode1, base);
+    const param2 = readVal(program, index + 2, mode2, base)
+    const val = param1 === param2 ? 1 : 0
+    writeVal(program, index + 3, mode3, base, val);
+    return { index: index + 4};
+}
+
+function jump(program, index, [mode1, mode2], base, ifTrue) {
+    if(!!readVal(program, index + 1, mode1, base) === ifTrue) {
+        return { index : readVal(program, index + 2, mode2, base)};
+    }
+    return { index: index + 3};
+}
+
+function doOp(index, program, inputGenerator, base) {
+    const {command, modes} = parseCommand(getOrDefault(program, index));
+    const [mode1, mode2] = modes;
     let val;
     switch(command) {
         case HALT:
-            halt(arr);
+            halt(program);
             return { index: index + 4};
         case ADD:
-            writeVal(arr, index + 3, mode3, base, readVal(arr, index + 1, mode1, base) + readVal(arr, index + 2, mode2, base));
-            return { index: index + 4};
+            return add(program, index, modes, base);
 
         case MULT:
-            writeVal(arr, index + 3, mode3, base, readVal(arr, index + 1, mode1, base) * readVal(arr, index + 2, mode2, base));
-            return { index: index + 4};
+            return mult(program, index, modes, base);
 
         case INPUT:
-            writeVal(arr, index + 1, mode1, base, inputGenerator.next().value);
+            writeVal(program, index + 1, mode1, base, inputGenerator.next().value);
             return { index: index + 2};
         
         case OUTPUT:
             return {
-                out : readVal(arr, index + 1, mode1, base),
+                out : readVal(program, index + 1, mode1, base),
                 index : index + 2
             };
         
         case JUMP_TRUE:
-            if(readVal(arr, index + 1, mode1, base)) {
-                return { index : readVal(arr, index + 2, mode2, base)};
-            }
-            return { index: index + 3};
+            return jump(program, index, modes, base, true);
 
         case JUMP_FALSE:
-            if(!readVal(arr, index + 1, mode1, base)) {
-                return {index : readVal(arr, index + 2, mode2, base)};
-            }
-            return { index: index + 3};
+            return jump(program, index, modes, base, false);
 
         case LESS_THAN:
-            val = (readVal(arr, index + 1, mode1, base) < readVal(arr, index + 2, mode2, base)) ? 1 : 0
-            writeVal(arr, index + 3, mode3, base, val);
-            return { index: index + 4};
+            return lt(program, index, modes, base);
 
         case EQ:
-            val = (readVal(arr, index + 1, mode1, base) === readVal(arr, index + 2, mode2, base)) ? 1 : 0
-            writeVal(arr, index + 3, mode3, base, val);
-            return { index: index + 4};
+            return eq(program, index, modes, base);
 
         case BASE_OFFSET:
-            val = readVal(arr, index + 1, mode1, base);
             return {
                 index : index + 2,
-                adjustment : val
+                adjustment : readVal(program, index + 1, mode1, base)
             }
         default:
-            throw `Unknown Command ${command} read from ${arr[index]} at index ${index}`;
+            throw `Unknown Command ${command} read from ${program[index]} at index ${index}`;
     }
-
-    
 }
 
 function* createInputGenerator(input) {
