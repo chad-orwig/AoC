@@ -41,7 +41,7 @@ function readVal(program, index, mode) {
     }
 }
 
-function doOp(index, arr, getInput) {
+function doOp(index, arr, inputGenerator) {
     const {command, modes:[mode1, mode2, mode3]} = parseCommand(arr[index]);
     let val;
     switch(command) {
@@ -57,7 +57,7 @@ function doOp(index, arr, getInput) {
             return index + 4;
 
         case INPUT:
-            arr[arr[index + 1]] = getInput();
+            arr[arr[index + 1]] = inputGenerator.next().value;
             return index + 2;
         
         case OUTPUT:
@@ -95,12 +95,12 @@ function doOp(index, arr, getInput) {
 }
 
 function* doProgram(program, input) {
-    const getInput = isFunction(input) ? input : () => input;
+    const inputGenerator = input.next ? input : (function* (){ while(true) { yield input }})();
     const myProgram = [...program];
     let index = 0;
 
     while(myProgram[index] !== 99) {
-        const res = doOp(index, myProgram, getInput);
+        const res = doOp(index, myProgram, inputGenerator);
         if(res.out !== undefined) {
             yield res.out;
             index = res.index;

@@ -43,30 +43,38 @@ phasePossibilities.forEach(phases => {
 console.log(maxThruster);
 
 function runProgramsPart2(phases) {
-    input = 0;
     const amplifiers = [];
-    let done = false;
+    let finished = false;
     let index = 0;
     let ans;
-    while(!done) {
-        const amp = amplifiers[index] || buildAmplifier(phases[index]);
-        amplifiers[index] = amp;
-        const res = amp.next();
-        if(index === 4) {
-            done = res.done;
-            if(!done) {
-                ans = res.value;
-            }
+    const programAInput = function* () {
+        yield phases[0];
+        yield 0;
+        while(true) {
+            yield ans;
         }
-        input = res.value;
-        index = (index + 1) % phases.length;
+    }
+    amplifiers.push(intCodeGen(program, programAInput()));
+    for(let i = 1; i < phases.length; i++) {
+        amplifiers.push(intCodeGen(program, amplifierInput(phases[i], amplifiers[i - 1])));
+    }
+    const lastAmp = amplifiers[amplifiers.length - 1];
+
+    while(!finished) {
+        const { done, value } = lastAmp.next();
+        finished = done;
+        if(!finished) {
+            ans = value;
+        }
     }
     return ans;
 }
 
-function* buildAmplifier(phase) {
-    return yield* intCodeGen(program, inputFunction(phase));
+function* amplifierInput(phase, inputAmplifier) {
+    yield phase;
+    yield* inputAmplifier;
 }
+
 
 const partTwoPossibilities = permutations([5,6,7,8,9]);
 
