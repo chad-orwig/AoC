@@ -6,10 +6,6 @@ const program = myInput;
 
 let input;
 
-function setInput(i) {
-    input = i;
-}
-
 function* inputFunction(phase) {
     yield phase;
     while(true) {
@@ -17,37 +13,19 @@ function* inputFunction(phase) {
     }
 }
 
-const phasePossibilities = permutations([0,1,2,3,4]);
-
-function runPhases(phases) {
-    let maxOutput = 0;
-    input = 0;
-    phases.forEach(phase => {
-        input = intCode(program, inputFunction(phase)).next().value;
-        maxOutput = Math.max(maxOutput, input);
-    });
-
-    return maxOutput;
+function* amplifierInput(phase, inputAmplifier) {
+    yield phase;
+    yield* inputAmplifier;
 }
 
-let maxThruster = 0;
-phasePossibilities.forEach(phases => {
-    maxThruster = Math.max(runPhases(phases), maxThruster);
-});
-
-console.log(maxThruster);
-
-function runProgramsPart2(phases) {
+function runAmplifiers(phases) {
     input = 0;
-    const amplifiers = [];
-    
-    amplifiers.push(intCode(program, inputFunction(phases[0])));
+    let lastAmp;
 
-    for(let i = 1; i < phases.length; i++) {
-        amplifiers.push(intCode(program, amplifierInput(phases[i], amplifiers[i - 1])));
-    }
-
-    const lastAmp = amplifiers[amplifiers.length - 1];
+    phases.forEach((phase, index) => {
+        const inputForAmp = index ? amplifierInput(phase, lastAmp) : inputFunction(phase);
+        lastAmp = intCode(program, inputForAmp);
+    });
 
     for(let value of lastAmp) {
         input = value;
@@ -56,10 +34,15 @@ function runProgramsPart2(phases) {
     return input;
 }
 
-function* amplifierInput(phase, inputAmplifier) {
-    yield phase;
-    yield* inputAmplifier;
-}
+const phasePossibilities = permutations([0,1,2,3,4]);
+
+
+let maxThruster = 0;
+phasePossibilities.forEach(phases => {
+    maxThruster = Math.max(runAmplifiers(phases), maxThruster);
+});
+
+console.log(maxThruster);
 
 
 const partTwoPossibilities = permutations([5,6,7,8,9]);
@@ -67,7 +50,7 @@ const partTwoPossibilities = permutations([5,6,7,8,9]);
 let maxPart2 = 0;
 
 partTwoPossibilities.forEach(phases => {
-    maxPart2 = Math.max(maxPart2, runProgramsPart2(phases));
+    maxPart2 = Math.max(maxPart2, runAmplifiers(phases));
 });
 
 console.log(maxPart2);
