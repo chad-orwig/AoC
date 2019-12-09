@@ -40,11 +40,9 @@ console.log(maxThruster);
 function runProgramsPart2(phases) {
     const amplifiers = [];
     let finished = false;
-    let index = 0;
-    let ans;
+    let ans = 0;
     const programAInput = function* () {
         yield phases[0];
-        yield 0;
         while(true) {
             yield ans;
         }
@@ -54,13 +52,8 @@ function runProgramsPart2(phases) {
         amplifiers.push(intCode(program, amplifierInput(phases[i], amplifiers[i - 1])));
     }
     const lastAmp = amplifiers[amplifiers.length - 1];
-
-    while(!finished) {
-        const { done, value } = lastAmp.next();
-        finished = done;
-        if(!finished) {
-            ans = value;
-        }
+    for(let value of lastAmp) {
+        ans = value;
     }
     return ans;
 }
