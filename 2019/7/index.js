@@ -1,7 +1,6 @@
 const {permutations} = require('../../utils');
 const {test1, input:myInput, test2, test3} = require('./input');
 const intCode = require('../intCode');
-const intCodeGen = require('../intCodeGen');
 
 const program = myInput;
 
@@ -11,14 +10,10 @@ function setInput(i) {
     input = i;
 }
 
-function inputFunction(phase) {
-    let firstTime = true;
-    return () => {
-        if(firstTime) {
-            firstTime = false;
-            return phase;
-        }
-        return input;
+function* inputFunction(phase) {
+    yield phase;
+    while(true) {
+        yield input;
     }
 }
 
@@ -28,7 +23,7 @@ function runPhases(phases) {
     let maxOutput = 0;
     input = 0;
     phases.forEach(phase => {
-        intCode(program, inputFunction(phase), setInput);
+        input = intCode(program, inputFunction(phase)).next().value;
         maxOutput = Math.max(maxOutput, input);
     });
 
@@ -54,9 +49,9 @@ function runProgramsPart2(phases) {
             yield ans;
         }
     }
-    amplifiers.push(intCodeGen(program, programAInput()));
+    amplifiers.push(intCode(program, programAInput()));
     for(let i = 1; i < phases.length; i++) {
-        amplifiers.push(intCodeGen(program, amplifierInput(phases[i], amplifiers[i - 1])));
+        amplifiers.push(intCode(program, amplifierInput(phases[i], amplifiers[i - 1])));
     }
     const lastAmp = amplifiers[amplifiers.length - 1];
 

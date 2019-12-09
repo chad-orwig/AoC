@@ -16,6 +16,11 @@ function permutations(arr) {
     return perms;
 }
 
+function* staticInputGenerator (...inputs) {
+    yield* inputs;
+}
+
 module.exports = {
-    permutations
+    permutations,
+    staticInputGenerator
 };
