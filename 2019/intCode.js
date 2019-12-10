@@ -110,7 +110,6 @@ function jump(program, index, [mode1, mode2], base, ifTrue) {
 
 function doOp(index, program, inputGenerator, base) {
     const {command, modes} = parseCommand(getOrDefault(program, index));
-    let val;
     switch(command) {
         case HALT:
             halt(program);
