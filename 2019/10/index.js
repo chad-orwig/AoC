@@ -70,11 +70,6 @@ function asteroidCount(x,y, map, getCoordinates) {
     return {seenCount, seen};
 }
 
-function myAtan(x,y) {
-    const primary = Math.atan2(x,y);
-    return primary >= 0 ? primary : (2 * Math.PI) - primary;
-}
-
 function destroyComparator({x : sx, y: sy}) {
     return({x:a1x, y:a1y }, { x:a2x, y:a2y }) => {
         const rise1 = a1y - sy;
