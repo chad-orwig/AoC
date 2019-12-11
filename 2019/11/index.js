@@ -57,12 +57,13 @@ let direction = UP;
 while(!done) {
     const {value:colorNum} = robot.next();
     const {done:isDone, value:turn} = robot.next();
-
-    const color = colorNum ? white : black;
-    setter(x,y,color);
-    direction = nextDirection(direction, turn);
-    moveDirection(direction);
     done = isDone;
+    if(!done) {
+        const color = colorNum ? white : black;
+        setter(x,y,color);
+        direction = nextDirection(direction, turn);
+        moveDirection(direction);
+    }
 }
 
 const xCoords = Array.from(map.keys());
