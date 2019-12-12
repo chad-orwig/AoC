@@ -16,11 +16,11 @@ const counter = Maps.mapCoordinateSize(map);
 
 let x = 0;
 let y = 0;
-setter(0,0,white);
+setter([0,0],white);
 
 function* inputGenerator() {
     while(true) {
-        const color = getter(x, y) || black;
+        const color = getter([x, y]) || black;
         yield color === black ? 0 : 1;
     }
 }
@@ -60,7 +60,7 @@ while(!done) {
     done = isDone;
     if(!done) {
         const color = colorNum ? white : black;
-        setter(x,y,color);
+        setter([x,y],color);
         direction = nextDirection(direction, turn);
         moveDirection(direction);
     }
@@ -87,7 +87,7 @@ for(let x = minX; x <= maxX; x++) {
         row = y + yDiff;
         const rowArr = message[row] || [];
         message[row] = rowArr;
-        rowArr[col] = getter(x, y) || black;
+        rowArr[col] = getter([x, y]) || black;
     }
 }
 

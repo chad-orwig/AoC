@@ -14,7 +14,7 @@ function buildMap() {
     for(let y = 0; y < source.length; y++) {
         for(let x = 0; x < source[y].length; x++) {
             if(source[y][x] === ASTEROID) {
-                setCoordinates(x, y, { x, y });
+                setCoordinates([x, y], { x, y });
             }
         }
     }
@@ -32,7 +32,7 @@ function checkLine(x, y, rise, run, radius, map, getCoordinates) {
     for(let blockRadius = 1; blockRadius * radius < maxRadius; blockRadius++) {
         const blockRun = run * blockRadius;
         const blockRise = rise * blockRadius;
-        const blockedLoc = getCoordinates(x + blockRun, y + blockRise);
+        const blockedLoc = getCoordinates([x + blockRun, y + blockRise]);
         if(blockedLoc) {
             asteroidsInLine.push(blockedLoc);
         }
@@ -42,11 +42,11 @@ function checkLine(x, y, rise, run, radius, map, getCoordinates) {
 }
 
 function asteroidCount(x,y, map, getCoordinates) {
-    if(!getCoordinates(x,y)) {
+    if(!getCoordinates([x,y])) {
         throw `No asteroid at ${x}, ${y}`;
     }
 
-    const seenAndBlocked = new Set([getCoordinates(x,y)]);
+    const seenAndBlocked = new Set([getCoordinates([x,y])]);
     const seen = new Set();
     let seenCount = 0;
 
@@ -106,6 +106,6 @@ while(mapSize() > 1) {
     const sorted = Array.from(destroyedThisLoop)
         .sort(comparator);
     destroyed.push(...sorted);
-    sorted.forEach(({x,y}) => deleteCoordinates(x,y));
+    sorted.forEach(({x,y}) => deleteCoordinates([x,y]));
 }
 console.log(destroyed[199]);

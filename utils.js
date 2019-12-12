@@ -1,4 +1,5 @@
 const filter = require('lodash/fp/filter');
+const flatMap = require('lodash/fp/flatMap');
 function withoutIndexFunc(index) {
     return (item, i) => i !== index;
 }
@@ -20,27 +21,56 @@ function* staticInputGenerator (...inputs) {
     yield* inputs;
 }
 
+function nestedMapGetter(currentMap, currentVal) {
+    return currentMap && currentMap.get(currentVal);
+}
+
+function nestedMapBuilder(currentMap, currentVal) {
+    return currentMap.get(currentVal) || currentMap.set(currentVal, new Map()).get(currentVal);
+}
+function notLast(o, i, arr) {
+    return i < arr.length - 1;
+}
+
 function mapCoordinateGetter(map) {
-    return (x,y) => map.get(x) && map.get(x).get(y);
+    return (idArray) => idArray.reduce(nestedMapGetter, map);
 }
 function mapCoordinateSetter(map) {
-    return (x,y,o) => {
-        if(!map.get(x)) {
-            map.set(x, new Map());
-        }
-        map.get(x).set(y, o);
+    return (idArray,o) => {
+        return idArray
+            .filter(notLast)
+            .reduce(nestedMapBuilder, map)
+            .set(idArray[idArray.length - 1], o);
     }
 }
 
 function mapCoordinateDeleter(map) {
-    return (x,y) => map.get(x) && map.get(x).get(y) && map.get(x).delete(y);
+    return (idArray) => {
+        return idArray
+            .filter(notLast)
+            .reduce(nestedMapBuilder, map)
+            .delete(idArray[idArray.length - 1]);
+    }
 }
 
+function explodeMap(mapOrNotMap) {
+    if(!(mapOrNotMap instanceof Map)) {
+        return [mapOrNotMap];
+    }
+
+    let result = [];
+    for(let value of mapOrNotMap) {
+        result.push(...explodeMap(value));
+    }
+    return result;
+}
+
+const mapExploder = flatMap(explodeMap);
+
 function mapCoordinateSize(map) {
+    
     return () => {
-        let size = 0;
-        map.forEach(subMap => size += subMap.size);
-        return size;
+        mapExploder(map).length;
     }
 }
 
