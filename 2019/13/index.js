@@ -1,6 +1,7 @@
 const input = require('./input');
 const intCode = require('../intCode');
-const {Maps} = require('../../utils')
+const {Maps} = require('../../utils');
+const colors = require('colors');
 
 const tiles = {
     empty : 0,
@@ -56,16 +57,36 @@ runProgram(part1);
 
 console.log(countBlocks());
 
+
+
+function characterPicker(val) {
+    switch(val) {
+        case tiles.h_paddle: return '█'.yellow;
+        case tiles.wall: return '█';
+        case tiles.block : return '█'.red;
+        case tiles.ball : return '█'.green;
+        case tiles.empty : return ' ';
+    }
+}
+
+const drawScreen = Maps.mapCoordinate2DPrint(screen)(characterPicker);
+let lastDraw = new Date();
 function* directionInput() {
     while(true) {
-        if(paddleX === ballX) {
-            yield 0;
-        }
-        else if(paddleX > ballX) {
-            yield -1;
-        }
-        else {
-            yield 1;
+        let currentDate = new Date();
+        if(currentDate - lastDraw >= 50){
+            lastDraw = currentDate;
+            console.log('\033[2J');
+            drawScreen();
+            if(paddleX === ballX) {
+                yield 0;
+            }
+            else if(paddleX > ballX) {
+                yield -1;
+            }
+            else {
+                yield 1;
+            }
         }
     }
     

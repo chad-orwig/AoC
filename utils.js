@@ -83,6 +83,23 @@ function mapExploder(map) {
     return () => mapByExplodeMap([map]);
 }
 
+function drawScreen(map, characterPicker) {
+    let rows = [];
+    for(let [x, subMap] of map) {
+        for(let [y, val] of subMap) {
+            if(!rows[y]) {
+                rows[y] = [];
+            }
+            rows[y][x] = characterPicker(val) || ' ';
+        }
+    }
+    rows.map(row => row.join('')).forEach(row => console.log(row));
+}
+
+function mapCoordinate2DPrint(map) {
+    return (characterPicker) => () => drawScreen(map, characterPicker);
+}
+
 
 module.exports = {
     permutations,
@@ -92,6 +109,7 @@ module.exports = {
         mapCoordinateDeleter,
         mapCoordinateSize,
         mapCoordinateCountBy,
+        mapCoordinate2DPrint,
         mapExploder
     },
     staticInputGenerator
