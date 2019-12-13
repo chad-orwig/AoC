@@ -59,20 +59,30 @@ function explodeMap(mapOrNotMap) {
     }
 
     let result = [];
-    for(let value of mapOrNotMap) {
-        result.push(...explodeMap(value));
+    for(let [index, value] of mapOrNotMap) {
+        const sub = explodeMap(value);
+        result.push(...sub);
     }
     return result;
 }
 
-const mapExploder = flatMap(explodeMap);
+const mapByExplodeMap = flatMap(explodeMap);
 
 function mapCoordinateSize(map) {
     
     return () => {
-        mapExploder(map).length;
+        return mapByExplodeMap([map]).length;
     }
 }
+
+function mapCoordinateCountBy(map) {
+    return (filterFunc) => () => mapByExplodeMap([map]).filter(filterFunc).length
+}
+
+function mapExploder(map) {
+    return () => mapByExplodeMap([map]);
+}
+
 
 module.exports = {
     permutations,
@@ -80,7 +90,9 @@ module.exports = {
         mapCoordinateGetter,
         mapCoordinateSetter,
         mapCoordinateDeleter,
-        mapCoordinateSize
+        mapCoordinateSize,
+        mapCoordinateCountBy,
+        mapExploder
     },
     staticInputGenerator
 };
