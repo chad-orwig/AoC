@@ -2,6 +2,8 @@ const input = require('./input');
 const intCode = require('../intCode');
 const {Maps} = require('../../utils');
 const colors = require('colors');
+const {promisify} = require('util');
+const sleep = promisify(setTimeout);
 
 const tiles = {
     empty : 0,
@@ -26,7 +28,10 @@ const part1 = intCode(input);
 
 let x,y,score, ballX, paddleX;
 
-function runProgram(program) {
+const drawScreen = Maps.mapCoordinate2DPrint(screen)(characterPicker);
+
+async function runProgram(program) {
+    let frameAvailable = sleep(0);
     for(let output of program) {
         if(x === undefined) {
             x = output;
@@ -42,6 +47,10 @@ function runProgram(program) {
                 setter([x,y], output);
                 if(output === tiles.ball) {
                     ballX = x;
+                    await frameAvailable;
+                    console.log('\033[2J');
+                    drawScreen();
+                    frameAvailable = sleep(50);
                 }
                 else if(output === tiles.h_paddle) {
                     paddleX = x;
@@ -69,24 +78,16 @@ function characterPicker(val) {
     }
 }
 
-const drawScreen = Maps.mapCoordinate2DPrint(screen)(characterPicker);
-let lastDraw = new Date();
 function* directionInput() {
     while(true) {
-        let currentDate = new Date();
-        if(currentDate - lastDraw >= 50){
-            lastDraw = currentDate;
-            console.log('\033[2J');
-            drawScreen();
-            if(paddleX === ballX) {
-                yield 0;
-            }
-            else if(paddleX > ballX) {
-                yield -1;
-            }
-            else {
-                yield 1;
-            }
+        if(paddleX === ballX) {
+            yield 0;
+        }
+        else if(paddleX > ballX) {
+            yield -1;
+        }
+        else {
+            yield 1;
         }
     }
     
