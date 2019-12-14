@@ -44,37 +44,9 @@ const requiredPart1 = new Map([['FUEL', 1]]);
 const {requiredOre:requiredOrePart1} = determineRequiredOre(requiredPart1);
 console.log(requiredOrePart1);
 
-function findLCMOfPeriods(counter) {
-    const periodMap = new Map();
-    const numChems = Object.keys(recipieMap).length;
-    let amountOfFuel = counter;
-    while(periodMap.size < numChems) {
-        const {extras} = determineRequiredOre(new Map([['FUEL', amountOfFuel]]));
-        Object.keys(extras).forEach(chem => {
-            if(extras[chem] === 0 && !periodMap.has(chem)) {
-                periodMap.set(chem, amountOfFuel);
-            }
-        });
-        amountOfFuel+= counter;
-    }
-
-    const periods = [];
-    for(let period of periodMap.values()) {
-        periods.push(period);
-    }
-    return lcmOfPeriods = lcm(...periods);
-}
-
-function extrasEmpty(extras) {
-    return extras && Object.values(extras)
-        .filter(i => i)
-        .length === 0;
-}
-
 const trillion = 1000000000000;
 let max = 82892753 / 16;
 let min = max / 2;
-console.log(determineRequiredOre(new Map([['FUEL', min]])).requiredOre);
 
 while(max > (min + 1)) {
     const attempt = Math.floor(((max - min) / 2) + min);
