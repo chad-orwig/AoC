@@ -50,7 +50,7 @@ async function runProgram(program) {
                     await frameAvailable;
                     console.log('\033[2J');
                     drawScreen();
-                    frameAvailable = sleep(50);
+                    frameAvailable = sleep(75);
                 }
                 else if(output === tiles.h_paddle) {
                     paddleX = x;
@@ -73,7 +73,7 @@ function characterPicker(val) {
         case tiles.h_paddle: return '█'.yellow;
         case tiles.wall: return '█';
         case tiles.block : return '█'.red;
-        case tiles.ball : return '█'.green;
+        case tiles.ball : return 'o'.green;
         case tiles.empty : return ' ';
     }
 }
