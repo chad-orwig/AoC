@@ -77,7 +77,7 @@ let min = max / 2;
 console.log(determineRequiredOre(new Map([['FUEL', min]])).requiredOre);
 
 while(max > (min + 1)) {
-    const attempt = ((max - min) / 2) + min;
+    const attempt = Math.floor(((max - min) / 2) + min);
     const {requiredOre} = determineRequiredOre(new Map([['FUEL', attempt]]));
     if(requiredOre === trillion) {
         min = attempt;
