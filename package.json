@@ -12,6 +12,7 @@
   "license": "ISC",
   "dependencies": {
     "colors": "^1.4.0",
+    "compute-lcm": "^1.1.0",
     "linked-list": "^1.0.4",
     "lodash": "^4.17.15",
     "moment": "^2.22.2"
