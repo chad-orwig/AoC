@@ -40,6 +40,31 @@ function determineRequiredOre(required, extras ={}) {
     
 }
 
-const required = new Map([['FUEL', 1]]);
-const {requiredOre} = determineRequiredOre(required);
-console.log(requiredOre);
+const requiredPart1 = new Map([['FUEL', 1]]);
+const {requiredOre:requiredOrePart1, extras} = determineRequiredOre(requiredPart1);
+console.log(requiredOrePart1);
+
+const periodMap = new Map();
+let oreMade = 0;
+const numChems = Object.keys(recipieMap).length;
+let amountOfFuel = 1;
+while(periodMap.size < numChems) {
+    const {extras} = determineRequiredOre(new Map([['FUEL', amountOfFuel]]));
+    Object.keys(extras).forEach(chem => {
+        if(extras[chem] === 0 && !periodMap.has(chem)) {
+            periodMap.set(chem, amountOfFuel);
+        }
+    });
+    amountOfFuel++;
+}
+
+const periods = [];
+for(let period of periodMap.values()) {
+    periods.push(period);
+}
+
+const lcmOfPeriods = lcm(...periods);
+
+console.log(lcmOfPeriods);
+
+console.log(determineRequiredOre(new Map([['FUEL', lcmOfPeriods]])).extras);
