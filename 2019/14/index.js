@@ -41,30 +41,58 @@ function determineRequiredOre(required, extras ={}) {
 }
 
 const requiredPart1 = new Map([['FUEL', 1]]);
-const {requiredOre:requiredOrePart1, extras} = determineRequiredOre(requiredPart1);
+const {requiredOre:requiredOrePart1} = determineRequiredOre(requiredPart1);
 console.log(requiredOrePart1);
 
-const periodMap = new Map();
-let oreMade = 0;
-const numChems = Object.keys(recipieMap).length;
-let amountOfFuel = 1;
-while(periodMap.size < numChems) {
-    const {extras} = determineRequiredOre(new Map([['FUEL', amountOfFuel]]));
-    Object.keys(extras).forEach(chem => {
-        if(extras[chem] === 0 && !periodMap.has(chem)) {
-            periodMap.set(chem, amountOfFuel);
-        }
-    });
-    amountOfFuel++;
+function findLCMOfPeriods(counter) {
+    const periodMap = new Map();
+    const numChems = Object.keys(recipieMap).length;
+    let amountOfFuel = counter;
+    while(periodMap.size < numChems) {
+        const {extras} = determineRequiredOre(new Map([['FUEL', amountOfFuel]]));
+        Object.keys(extras).forEach(chem => {
+            if(extras[chem] === 0 && !periodMap.has(chem)) {
+                periodMap.set(chem, amountOfFuel);
+            }
+        });
+        amountOfFuel+= counter;
+    }
+
+    const periods = [];
+    for(let period of periodMap.values()) {
+        periods.push(period);
+    }
+    return lcmOfPeriods = lcm(...periods);
 }
 
-const periods = [];
-for(let period of periodMap.values()) {
-    periods.push(period);
+function extrasEmpty(extras) {
+    return extras && Object.values(extras)
+        .filter(i => i)
+        .length === 0;
 }
 
-const lcmOfPeriods = lcm(...periods);
+const trillion = 1000000000000;
+let max = 82892753 / 16;
+let min = max / 2;
+console.log(determineRequiredOre(new Map([['FUEL', min]])).requiredOre);
 
-console.log(lcmOfPeriods);
+while(max > (min + 1)) {
+    const attempt = ((max - min) / 2) + min;
+    const {requiredOre} = determineRequiredOre(new Map([['FUEL', attempt]]));
+    if(requiredOre === trillion) {
+        min = attempt;
+        max = attempt;
+    }
+    else if(requiredOre < trillion) {
+        min = attempt;
+    }
+    else {
+        max = attempt;
+    }
+}
 
-console.log(determineRequiredOre(new Map([['FUEL', lcmOfPeriods]])).extras);
+console.log(min);
+console.log(max);
+
+console.log(determineRequiredOre(new Map([['FUEL', Math.floor(min)]])).requiredOre);
+console.log(determineRequiredOre(new Map([['FUEL', Math.floor(max)]])).requiredOre);
