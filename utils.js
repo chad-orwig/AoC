@@ -83,14 +83,37 @@ function mapExploder(map) {
     return () => mapByExplodeMap([map]);
 }
 
+function findMinX(map) {
+    return Math.min(...Array.from(map.keys()));
+}
+
+const mapYs = flatMap(m => Array.from(m.keys()));
+function findMinY(map) {
+    const yList = mapYs(Array.from(map.values()));
+    return Math.min(...yList);
+        
+}
+
 function drawScreen(map, characterPicker) {
+    const minY = findMinY(map);
+    const minX = findMinX(map);
     let rows = [];
     for(let [x, subMap] of map) {
         for(let [y, val] of subMap) {
-            if(!rows[y]) {
-                rows[y] = [];
+            if(!rows[y - minY]) {
+                rows[y - minY] = [];
             }
-            rows[y][x] = characterPicker(val) || ' ';
+            rows[y - minY][x - minX] = characterPicker(val) || ' ';
+        }
+    }
+    for(let i = 0; i < rows.length; i++) {
+        if(!rows[i]) {
+            rows[i] = [];
+        }
+        else {
+            for(let j = 0; j < rows[i].length; j++) {
+                rows[i][j] = rows[i][j] || ' ';
+            }
         }
     }
     rows.map(row => row.join('')).forEach(row => console.log(row));
