@@ -49,17 +49,17 @@ setter([0,0], locTypes.droid);
 function characterPicker(val) {
     switch(val) {
         case locTypes.wall:
-            return '█';
+            return ' '.bgWhite;
         case locTypes.droid:
             return 'D'.bgGreen;
         case locTypes.oxygen:
-            return 'O'.bgRed;
+            return 'O'.bgCyan;
         case locTypes.oxygenAndDroid:
-            return '█'.rainbow;
+            return 'O'.bgCyan;
         case locTypes.empty:
             return ' '.bgYellow;
         case locTypes.start:
-            return 'S'.bgYellow;
+            return 'S'.bgMagenta;
         default: 
             return ' ';
     }
@@ -197,7 +197,7 @@ async function automaticControl() {
         readOutput(output);
         if(drawing) {
             await frameReady;
-            frameReady = sleep(50);
+            frameReady = sleep(100);
             console.log('\033[2J');
             printer();
         }
@@ -256,7 +256,7 @@ async function fillWithOxygen() {
         minutes++;
         if(drawing) {
             await frameReady;
-            frameReady = sleep(50);
+            frameReady = sleep(100);
             console.log('\033[2J');
             printer();
         }
