@@ -5,6 +5,10 @@ const keypress = require('keypress');
 const colors = require('colors');
 const { promisify } = require('util');
 const sleep = promisify(setTimeout);
+const bfs = require('../../bfs');
+const flatMap = require('lodash/fp/flatMap');
+const filter = require('lodash/fp/filter');
+const flow = require('lodash/fp/flow');
 keypress(process.stdin);
 
 let nextDirection = 0;
@@ -14,6 +18,7 @@ const map = new Map();
 const getter = Maps.mapCoordinateGetter(map);
 const setter = Maps.mapCoordinateSetter(map);
 const printer = Maps.mapCoordinate2DPrint(map)(characterPicker);
+let oxygenSpaces
 
 const locTypes = {
     unknown : undefined,
@@ -106,6 +111,7 @@ function moveDroid() {
 function foundOxygen() {
     const {x,y} = droidLocation;
     setter([x,y], locTypes.oxygenAndDroid);
+    oxygenSpaces = [{x,y}];
 }
 
 function readOutput(statusCode) {
@@ -126,9 +132,8 @@ function readOutput(statusCode) {
     }
 }
 
-printer();
-
 function manualControl() {
+    printer();
     process.stdin.on('keypress', function (ch, key) {
     
         if(key.name === 'x') {
@@ -170,6 +175,8 @@ function inverseDirection(direction) {
     }
 }
 
+const drawing = true;
+
 async function automaticControl() {
     let frameReady = sleep(50);
     const path = [];
@@ -188,12 +195,78 @@ async function automaticControl() {
             path.push(nextDirection);
         }
         readOutput(output);
-        await frameReady;
-        frameReady = sleep(50);
-        console.log('\033[2J');
-        printer();
+        if(drawing) {
+            await frameReady;
+            frameReady = sleep(50);
+            printer();
+        }
     }
 }
 
+function notWall({x, y}) {
+    return getter([x,y]) !== locTypes.wall;
+}
+
+function notOxygen({x,y}) {
+    return getter([x,y]) !== locTypes.oxygen;
+}
+
+function nextSteps(x,y) {
+    return [
+        {
+            x : x - 1,
+            y
+        },
+        {
+            x : x + 1,
+            y
+        },
+        {
+            x,
+            y : y -1
+        },
+        {
+            x,
+            y : y + 1
+        }
+    ];
+}
+
+function findFastestPath() {
+    const finished = ({x,y}) => getter([x,y]) === locTypes.oxygen ? 0 : 1;
+    const nextStates = ({x,y}) => {
+        return nextSteps(x,y)
+            .filter(notWall);
+    }
+    return bfs(droidLocation, nextStates, finished);
+}
+
+async function fillWithOxygen() {
+    let frameReady = sleep(50);
+    let minutes = -1;
+    const nextSpaces = flow(
+        flatMap(({x,y}) => nextSteps(x,y)),
+        filter(notWall),
+        filter(notOxygen)
+    )
+    while(oxygenSpaces.length) {
+        oxygenSpaces = nextSpaces(oxygenSpaces);
+        oxygenSpaces.forEach(({x,y}) => setter([x,y], locTypes.oxygen));
+        minutes++;
+        if(drawing) {
+            await frameReady;
+            frameReady = sleep(50);
+            printer();
+        }
+    }
+
+    return minutes;
+}
+
 automaticControl()
+    .then(printer)
+    .then(findFastestPath)
+    .then(ans => console.log(ans))
+    .then(fillWithOxygen)
+    .then(ans => console.log(ans))
     .catch(console.error);
