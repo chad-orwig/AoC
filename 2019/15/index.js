@@ -198,6 +198,7 @@ async function automaticControl() {
         if(drawing) {
             await frameReady;
             frameReady = sleep(50);
+            console.log('\033[2J');
             printer();
         }
     }
@@ -256,6 +257,7 @@ async function fillWithOxygen() {
         if(drawing) {
             await frameReady;
             frameReady = sleep(50);
+            console.log('\033[2J');
             printer();
         }
     }
