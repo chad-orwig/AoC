@@ -70,10 +70,10 @@ console.log(countBlocks());
 
 function characterPicker(val) {
     switch(val) {
-        case tiles.h_paddle: return '█'.yellow;
-        case tiles.wall: return '█';
-        case tiles.block : return '█'.red;
-        case tiles.ball : return 'o'.green;
+        case tiles.h_paddle: return ' '.bgYellow;
+        case tiles.wall: return ' '.bgWhite;
+        case tiles.block : return ' '.bgRed;
+        case tiles.ball : return '●'.green;
         case tiles.empty : return ' ';
     }
 }
