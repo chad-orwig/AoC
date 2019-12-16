@@ -9,6 +9,7 @@ const flattenDeep = require('lodash/fp/flattenDeep');
 const property = require('lodash/fp/property');
 const eq = require('lodash/fp/eq');
 const identity = require('lodash/fp/identity');
+const colors = require('colors');
 
 const width = 25;
 const height = 6;
@@ -76,8 +77,8 @@ function mergePixel(topPixel, bottomPixel) {
 
 function convertPixel(pixel) {
     switch (pixel) {
-        case 0 : return ' ';
-        case 1 : return '█';
+        case 0 : return ' '.bgBlack;
+        case 1 : return ' '.bgCyan;
         default: return pixel;
     }
 }
@@ -94,4 +95,4 @@ const mergedLayer = layers.slice(1).reduce(mergeLayer, layers[0]);
 const rowStrings = mergedLayer.rows
     .map(rowToString);
 
-console.log(rowStrings);
+rowStrings.forEach(row => console.log(row));
