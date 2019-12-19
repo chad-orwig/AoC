@@ -1,4 +1,5 @@
 const isFunction = require('lodash/isFunction');
+const isArray = require('lodash/isArray');
 const HALT = 99;
 const ADD = 1;
 const MULT = 2;
@@ -152,10 +153,22 @@ function doOp(index, program, inputGenerator, base) {
     }
 }
 
+function arrayInputFunction(arr) {
+    let i = 0;
+    return () => {
+        const ans = arr[i];
+        i++;
+        if(i === arr.length) i = 0;
+        return ans;
+    }
+}
+
 function* createInputGenerator(input) {
-    const inputIsFunction = isFunction(input);
+    const inputIsArray = isArray(input);
+    const newInput = inputIsArray ? arrayInputFunction(input) : input;
+    const inputIsFunction = isFunction(newInput);
     while(true) { 
-        yield inputIsFunction ? input() : input 
+        yield inputIsFunction ? newInput() : newInput 
     }
 }
 
