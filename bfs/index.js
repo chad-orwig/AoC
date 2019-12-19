@@ -1,59 +1,56 @@
-const _ = require('lodash');
+const filter = require('lodash/fp/filter');
+const flatMap = require('lodash/fp/flatMap');
+const flow = require('lodash/fp/flow');
 function bfs(startingState, findNextStates, heuristic, keepFunction, customWriteThroughFunction, customInsertFunction) {
-    const insert = customInsertFunction || defaultInsert;
     const writeThrough = customWriteThroughFunction || defaultWriteThrough;
-    const queue = [];
-    insert(queue, {
+    let queue = [{
         state : startingState,
         steps : 0
-    });
-    const visited = {};
+    }];
+    const visited = new Set();
     writeThrough(visited, startingState);
-    let closest = heuristic(startingState);
-    const ans =[];
+    const ans = [];
+    const generateStates = flow(
+        flatMap(stateGenerator(findNextStates)),
+        filter(({state}) => writeThrough(visited, state)),
+        filter(checkHeuristic(heuristic, keepFunction, startingState, ans))
+    );
     while(queue.length) {
-        const currentState = queue.shift();
-        if(ans.steps && currentState.steps >= ans.steps) {
-            return ans;
-        }
-        const nextStates = findNextStates(currentState.state, currentState.steps);
-        const removeVisited = _.filter(nextStates, state => {
-            return writeThrough(visited, state);
-        });
-        for(let i = 0; i < removeVisited.length; i++) {
-            const newState = removeVisited[i];
-            const hVal = heuristic(newState);
-            if(hVal === 0) {
-                ans.push({
-                    state : newState,
-                    prev  : currentState,
-                    steps : currentState.steps + 1
-                });
-                ans.steps = currentState.steps + 1;
-            }
-            closest = Math.min(closest, hVal);
-            if(!keepFunction || keepFunction(closest, hVal)) {
-                insert(queue,{
-                    state : newState,
-                    prev  : currentState,
-                    steps : currentState.steps + 1
-                });
-            }
-        }
-
+        queue = generateStates(queue);
+        if(ans.length) return ans[0];
     }
 }
 
-function defaultInsert(queue, state) {
-    queue.push(state);
+function stateGenerator(findNextStates) {
+    return ({state:prev, steps}) => {
+        const states = findNextStates(prev, steps);
+        return states.map(state =>({
+            state,
+            prev,
+            steps : steps + 1
+        }));
+    }
 }
 
 function defaultWriteThrough(visited, state) {
     const stringified = JSON.stringify(state);
-    if(visited[stringified]) return false;
+    if(visited.has(stringified)) return false;
 
-    visited[stringified] = true;
+    visited.add(stringified);
     return true;
+}
+
+function checkHeuristic(heuristic, keepFunction, start, ans) {
+    let min = heuristic(start);
+    return (runObject) => {
+        const hVal = heuristic(runObject.state);
+        min = Math.min(min, hVal);
+        if(hVal === 0){
+            ans.push(runObject);
+        }
+
+        return !keepFunction || keepFunction(min, hVal);
+    };
 }
 
 module.exports = bfs;
