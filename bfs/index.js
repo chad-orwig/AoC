@@ -1,8 +1,8 @@
 const filter = require('lodash/fp/filter');
 const flatMap = require('lodash/fp/flatMap');
 const flow = require('lodash/fp/flow');
-function bfs(startingState, findNextStates, heuristic, keepFunction, customWriteThroughFunction, customInsertFunction) {
-    const writeThrough = customWriteThroughFunction || defaultWriteThrough;
+function bfs(startingState, findNextStates, heuristic, keepFunction, hashFunction=JSON.stringify) {
+    const writeThrough = makeWriteThrough(hashFunction);
     let queue = [{
         state : startingState,
         steps : 0
@@ -12,7 +12,7 @@ function bfs(startingState, findNextStates, heuristic, keepFunction, customWrite
     const ans = [];
     const generateStates = flow(
         flatMap(stateGenerator(findNextStates)),
-        filter(({state}) => writeThrough(visited, state)),
+        filter((step) => writeThrough(visited, step.state)),
         filter(checkHeuristic(heuristic, keepFunction, startingState, ans))
     );
     while(queue.length) {
@@ -32,12 +32,14 @@ function stateGenerator(findNextStates) {
     }
 }
 
-function defaultWriteThrough(visited, state) {
-    const stringified = JSON.stringify(state);
-    if(visited.has(stringified)) return false;
+function makeWriteThrough(hashFunction){
+    return (visited, state) => {
+    const stringified = hashFunction(state);
+        if(visited.has(stringified)) return false;
 
-    visited.add(stringified);
-    return true;
+        visited.add(stringified);
+        return true;
+    };
 }
 
 function checkHeuristic(heuristic, keepFunction, start, ans) {
