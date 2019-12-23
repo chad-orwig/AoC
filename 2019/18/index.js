@@ -40,7 +40,6 @@ const isKey = (space) => {
 
 const filterToKeys = filter(isKey);
 const numKeys = rows.map(filterToKeys).reduce((sum, curr) => sum + curr.length, 0);
-console.log(numKeys);
 
 const isDoor = (space) => {
     const code = space.charCodeAt(0);
@@ -89,7 +88,6 @@ let best = Number.MAX_VALUE;
 const keepSearching = (limit) => (fewestKeysRemaining, myKeysRemaining) => {
     if(fewestKeysRemaining < best) {
         best = fewestKeysRemaining;
-        console.log(best);
     }
     return myKeysRemaining - fewestKeysRemaining <= limit;
 }
@@ -106,7 +104,7 @@ start.keySet = [];
 console.time('part 1');
 const ans = bfs(start,determineNextStates, keysRemaining, keepSearching(7));
 
-console.log(ans);
+console.log(ans.steps);
 console.timeEnd('part 1');
 delete ans;
 
@@ -144,7 +142,6 @@ const customWriteThroughFunction = (visited, state) => {
     const set = visited.set || new Set();
     const str = stringify(state);
     if(set.has(str)) return false;
-    console.log(str);
     set.add(str);
     visited.set = set;
 }
@@ -161,4 +158,4 @@ best = Number.MAX_VALUE;
 console.time('part 2');
 const ans2 = bfs(part2, determineNextStatesPart2, keysRemaining, keepSearching(7));
 console.timeEnd('part 2');
-console.log(ans2);
+console.log(ans2.steps);

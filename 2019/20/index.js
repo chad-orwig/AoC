@@ -112,10 +112,11 @@ function nextNodesPart1(node) {
 function doneCheckerPart1(endNode) {
     return (node) => node === endNode ? 0 : 1;
 }
-
+console.time('part 1');
 const ans = bfs(portals.AA, nextNodesPart1, doneCheckerPart1(portals.ZZ), null, n => n);
 
-console.log(ans);
+console.log(ans.steps);
+console.timeEnd('part 1');
 
 portals.AA.outer = false;
 portals.ZZ.outer = false;
@@ -153,9 +154,11 @@ function doneCheckerPart2(endNode) {
     return ({node}) => node === endNode ? 0 : 1;
 }
 
+console.time('part 2');
 const ans2 = bfs({
     node : portals.AA,
     level : 1
 }, nextNodesPart2(portals.AA, portals.ZZ), doneCheckerPart2(portals.ZZ), null, nodeLevelHash);
 
-console.log(ans2);
+console.log(ans2.steps);
+console.timeEnd('part 2');
