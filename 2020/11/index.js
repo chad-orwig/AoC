@@ -65,9 +65,8 @@ function findInDirection(rowMod, seatMod, grid, rowIndex, seatIndex) {
     const newSeat = seatIndex + seatMod;
     const val = grid?.[newRow]?.[newSeat];
 
-    if(!val) return empty;
-
     switch(val) {
+        case undefined:
         case empty: return empty;
         case filled: return filled;
         case floor: return findInDirection(rowMod, seatMod, grid, newRow, newSeat);
