@@ -52,14 +52,14 @@ function countOccupied(grid) {
 let grid = input;
 let lastCount = -1
 let currentCount = 0;
-
+console.time('Part 1');
 while(lastCount !== currentCount) {
     lastCount = currentCount;
     grid = grid.reduce(tickReducer(neighbors), new Array(grid.length));
     currentCount = countOccupied(grid);
 }
 console.log(currentCount);
-
+console.timeEnd('Part 1');
 function findInDirection(rowMod, seatMod, grid, rowIndex, seatIndex) {
     const newRow = rowIndex + rowMod;
     const newSeat = seatIndex + seatMod;
@@ -90,9 +90,11 @@ grid = input;
 lastCount = -1
 currentCount = 0;
 
+console.time('Part 2');
 while(lastCount !== currentCount) {
     lastCount = currentCount;
     grid = grid.reduce(tickReducer(pt2Neighbors, 0, 5), new Array(grid.length));
     currentCount = countOccupied(grid);
 }
 console.log(currentCount);
+console.timeEnd('Part 2');
