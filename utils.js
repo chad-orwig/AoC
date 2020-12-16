@@ -123,6 +123,12 @@ function mapCoordinate2DPrint(map) {
     return (characterPicker) => () => drawScreen(map, characterPicker);
 }
 
+function negate(predicate) {
+    return function() {
+        return !predicate.apply(this, arguments);
+    }
+}
+
 
 module.exports = {
     permutations,
@@ -135,5 +141,6 @@ module.exports = {
         mapCoordinate2DPrint,
         mapExploder
     },
-    staticInputGenerator
+    staticInputGenerator,
+    negate
 };
