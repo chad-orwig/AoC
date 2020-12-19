@@ -1,0 +1,1 @@
+export const toMapReducer = (property) => (map, o ) => map.set(o[property], o);
