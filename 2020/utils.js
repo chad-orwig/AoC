@@ -10,3 +10,5 @@ export function rotateSquare(square, numRotations=1) {
 
     return rotateSquare(square.map(rotateSquareMapper), numRotations - 1);
 }
+
+export const tap = (val) => console.log(val) || val;
