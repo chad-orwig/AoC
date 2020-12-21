@@ -2,6 +2,9 @@ export default function Tile(rawTile) {
     this.id = Number(rawTile[0].substring(5, 9));
     const rows = rawTile.slice(1)
         .map(str => str.split(''));
+    this.grid = rows
+        .filter((_, i) => i !== 0 && i < rows.length - 1)
+        .map(row => row.slice(1, row.length - 1));
     this.borders = [
         rows[0],
         rows.map(row => row[row.length - 1]),
@@ -32,7 +35,7 @@ Tile.prototype.variant = function(flipped, rotation) {
     if(rotation) {
         borders = [...borders.slice(rotation), ...borders.slice(0, rotation)]
     }
-    return new Variant(this, borders);
+    return new Variant(this, borders, flipped, rotation);
 }
 
 Tile.prototype.matchingVariants = function(otherVariant, matchDirection) {
@@ -40,9 +43,11 @@ Tile.prototype.matchingVariants = function(otherVariant, matchDirection) {
         .filter(v => v.matches(otherVariant, matchDirection));
 }
 
-export function Variant(parent, borders) {
+export function Variant(parent, borders, flipped, rotations) {
     this.parent = parent;
     this.borders = borders;
+    this.flipped = flipped;
+    this.rotations = rotations;
 }
 
 export const MatchDirections = {
@@ -67,6 +72,7 @@ Variant.prototype.log = function() {
 function reverseMatch(arr1, arr2) {
     const max = arr1.length - 1;
     return arr1.findIndex((letter, index) => letter !== arr2[max - index]) === -1;
-
 }
+
+
 
