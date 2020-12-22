@@ -15,7 +15,7 @@
     "colors": "^1.4.0",
     "compute-lcm": "^1.1.0",
     "keypress": "^0.2.1",
-    "linked-list": "^1.0.4",
+    "linked-list": "^2.1.0",
     "lodash": "^4.17.15",
     "mathjs": "^6.2.5",
     "moment": "^2.22.2"
