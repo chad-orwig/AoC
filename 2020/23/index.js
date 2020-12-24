@@ -80,8 +80,10 @@ const cupOrder = [...Array(pt1List.size).keys()]
 
     console.log(cupOrder.slice(1).join(''));
 
+console.time('part 2');
 const [pt2List, pt2Map] = doAnswer(1000000, 10000000);
 
 const cup1 = pt2Map.get(1);
 
 console.log(cup1.dNext().label * cup1.dNext().dNext().label);
+console.timeEnd('part 2');
