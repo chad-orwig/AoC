@@ -71,7 +71,6 @@ function gameOfLifeRound(map, numRepitions, flipTester = shouldFlip(map), flippe
         .filter(flipTester)
         .forEach(flipper);
 
-    console.log([...map.values()].filter(b => b).length);
     return gameOfLifeRound(map, numRepitions - 1, flipTester, flipper);
 }
 const map = part1();
@@ -79,3 +78,5 @@ const map = part1();
 console.log([...map.values()].filter(b => b).length);
 
 gameOfLifeRound(map, 100);
+
+console.log([...map.values()].filter(b => b).length);
