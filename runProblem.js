@@ -1,5 +1,7 @@
 const process = require('process');
 const childProcess = require('child_process');
+const touch = require('touch');
+const mkdirp = require('mkdirp');
 const [year, problemNumber] = process.argv.slice(2);
 
 const scriptPath = `./${year}/${problemNumber}`;

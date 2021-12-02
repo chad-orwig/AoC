@@ -7,7 +7,8 @@
     "2020": "node runProblem.js 2020",
     "test": "echo \"Error: no test specified\" && exit 1",
     "problem": "node runProblem.js 2019",
-    "lint": "eslint 2019"
+    "lint": "eslint 2019",
+    "init": "./init.sh 2021"
   },
   "author": "",
   "license": "ISC",
@@ -21,6 +22,7 @@
     "moment": "^2.22.2"
   },
   "devDependencies": {
-    "eslint": "^6.7.2"
+    "eslint": "^6.7.2",
+    "nodemon": "^2.0.15"
   }
 }
