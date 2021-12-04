@@ -128,7 +128,18 @@ function negate(predicate) {
         return !predicate.apply(this, arguments);
     }
 }
-
+/**
+ * @template {T}
+ * @param {T} object 
+ * @param {T[]} array 
+ * @param {number} index 
+ * @returns {T[]}
+ */
+function replaceInArray(object, array, index) {
+    const clone = array.filter(() => true);
+    clone[index] = object;
+    return clone;
+}
 
 module.exports = {
     permutations,
@@ -142,5 +153,6 @@ module.exports = {
         mapExploder
     },
     staticInputGenerator,
-    negate
+    negate,
+    replaceInArray,
 };
