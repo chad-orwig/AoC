@@ -32,9 +32,20 @@ function notLast(o, i, arr) {
     return i < arr.length - 1;
 }
 
+
+/**
+ * 
+ * @param {Map} map 
+ * @returns {function(any[]):any}
+ */
 function mapCoordinateGetter(map) {
     return (idArray) => idArray.reduce(nestedMapGetter, map);
 }
+/**
+ * 
+ * @param {Map} map 
+ * @returns {function(any[], any):any}
+ */
 function mapCoordinateSetter(map) {
     return (idArray,o) => {
         return idArray
