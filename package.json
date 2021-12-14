@@ -18,7 +18,7 @@
     "keypress": "^0.2.1",
     "linked-list": "^3.0.1",
     "lodash": "^4.17.15",
-    "mathjs": "^6.2.5",
+    "mathjs": "^7.5.1",
     "moment": "^2.22.2"
   },
   "devDependencies": {
