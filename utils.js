@@ -161,7 +161,9 @@ module.exports = {
         mapCoordinateSize,
         mapCoordinateCountBy,
         mapCoordinate2DPrint,
-        mapExploder
+        mapExploder,
+        findMinX,
+        findMinY,
     },
     staticInputGenerator,
     negate,
