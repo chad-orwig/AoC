@@ -2,6 +2,9 @@ import { input } from './input.js';
 import { List, Item } from 'linked-list';
 
 const [ start, rules ] = input;
+const ZERO = BigInt('0');
+const ONE = BigInt('1');
+const TWO = BigInt('2');
 
 /**
  * 
@@ -87,19 +90,20 @@ function pairInsertion(pairs) {
                 [`${middle}${k2}`, count],
             ];
         })
-        .reduce((m, e) => m.set(e[0], (m.get(e[0]) ?? 0) + e[1]), new Map());
+        .reduce((m, e) => m.set(e[0], (m.get(e[0]) ?? ZERO) + e[1]), new Map());
 }
 
 const startingPairs = start.split('')
     .reduce((m, letter, i, arr) => {
         if(!arr[i+1]) return m;
         const key = `${letter}${arr[i + 1]}`;
-        const count = m.get(key) ?? 0;
-        return m.set(key, count + 1);
+        const count = m.get(key) ?? ZERO;
+        return m.set(key, count + ONE);
     }, new Map());
 
 let currentPairs = startingPairs;
 for(let i = 0; i < 40; i++) {
+    if(i % 10000 === 0) console.log(i);
     currentPairs = pairInsertion(currentPairs);
 }
 
@@ -112,12 +116,13 @@ function getCountsFromPairs(pairs) {
                 { key: k2, count },
             ];
         })
-        .reduce((m, { key, count }) => m.set(key, (m.get(key) ?? 0) + count ), new Map())
+        .reduce((m, { key, count }) => m.set(key, (m.get(key) ?? ZERO) + count ), new Map())
         .entries())
-        .map(([val, count]) => ( { val, count : Math.ceil((count / 2)) }))
-        .sort((a,b) => b.count - a.count)
+        .map(([val, count]) => ( { val, count : ((count + ONE) / TWO) }))
+        .sort((a,b) => (a.count < b.count) ? 1 : ((a.count > b.count) ? -1 : 0))
 
 }
 
 const seenCounts2 = getCountsFromPairs(currentPairs);
-console.log(seenCounts2[0].count - seenCounts2[seenCounts.length - 1].count);
+console.log('complete');
+console.error(seenCounts2[0].count - seenCounts2[seenCounts.length - 1].count);
