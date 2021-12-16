@@ -8,7 +8,7 @@ const orderBy = require('lodash/fp/orderBy');
  * @param {function(T,number?): T[]} findNextStates 
  * @param {function(T): number} heuristic 
  * @param {function(number, number, T):boolean} [keepFunction]
- * @param {function(T):number|string} [hashFunction]
+ * @param {function(T):any} [hashFunction]
  * @param {function(T):number} [calcCost]
  * @returns 
  */
@@ -34,8 +34,6 @@ function bfs(startingState, findNextStates, heuristic, keepFunction, hashFunctio
         filter((step) => writeThrough(visited, step.state)),
         filter(checkHeuristic(heuristic, keepFunction, startingState, ans))
     );
-    const orderQueue = orderBy(memoizedCalcCost, 'desc');
-    const filterWithHeruisticAndKeepFunction = checkHeuristic(heuristic, keepFunction, startingState, ans);
     while(queue.length) {
         const topState = queue.pop();
         const newStates = generateStates([topState]);

@@ -1,5 +1,25 @@
 import bfs from '../../bfs/index.js';
 import { input, testInput } from './input.js';
+import utils from '../../utils.js';
+import 'colors';
+import { promisify } from 'util';
+
+const delay = promisify(setTimeout);
+
+
+const { Maps } = utils;
+
+
+const memoizedGetLoc = (() => {
+    const locMap = new Map();
+    const getter = Maps.mapCoordinateGetter(locMap);
+    const setter = Maps.mapCoordinateSetter(locMap);
+    return (x, y) => {
+        const loc = getter([x,y]) ?? ({ x, y });
+        setter([x,y], loc);
+        return loc;
+    }
+})();
 
 let cavernRisk = input;
 /**
@@ -13,7 +33,7 @@ let cavernRisk = input;
  */
 const startingState = {
     totalRisk: 0,
-    loc: { x: 0, y: 0 },
+    loc: memoizedGetLoc(0, 0),
     distanceFromHome: distanceFromHome({ x: 0, y: 0})
 };
 
@@ -33,18 +53,26 @@ function findNextStates(state) {
         x : x + state.loc.x,
         y : y + state.loc.y,
     }))
-    .map(({x, y}) => ({x, y, risk: cavernRisk?.[y]?.[x]}))
+    .map(({x, y}) => ({ loc: memoizedGetLoc(x,y), risk: cavernRisk?.[y]?.[x]}))
     .filter(({risk}) => risk)
-    .map(({x,y,risk}) => ({
-        loc: { x, y },
+    .map(({ loc,risk}) => ({
+        loc: loc,
         totalRisk: state.totalRisk + risk,
-        distanceFromHome: distanceFromHome({x,y})
+        distanceFromHome: distanceFromHome(loc),
+        prev: state
     }));
     
 }
 
+/**
+ * @type Set<Loc>
+ */
+let seenSet;
+let routes = [];
+let nextLog = Promise.resolve();
 const keepFunction = () => {
-    const bestCostAtLoc = new Map();
+    const seen = new Set();
+    seenSet = seen;
     /**
      * @param {number} bestSeenDistance
      * @param {number} currentDistance
@@ -52,15 +80,19 @@ const keepFunction = () => {
      * @returns {boolean}
      */
     return (bestSeenDistance, currentDistance, state) => {
-        if(currentDistance - bestSeenDistance > 800) {
-            // console.log(`Filtered out far away ${currentDistance}`);
-            return false
-        };
-        const key = JSON.stringify(state.loc);
-        const prevRisk = bestCostAtLoc.get(key) ?? state.totalRisk;
-        const bestRisk = Math.min(prevRisk, state.totalRisk);
-        bestCostAtLoc.set(key, bestRisk);
-        return bestRisk === state.totalRisk;
+        if(currentDistance - bestSeenDistance > 799) return false;
+        const key = state.loc;
+        if(seen.has(key)) return false;
+        seen.add(key);
+        const {x,y} = key;
+        const row = routes?.[y] ?? [];
+        routes[y] = row;
+        row[x] = ' '.bgRed;
+        if(seen.size % 10000 === 0) {
+            const routeString = routes.map(row => row.map(v => v || ' ').join('')).join('\n');
+            nextLog = nextLog.then(() => delay(2000)).then(() => console.log(routeString));
+        }
+        return true;
     }
 }
 /**
@@ -72,7 +104,7 @@ function distanceFromHome(loc) {
     return d;
 }
 
-const ans = bfs(startingState, findNextStates, (state) => state.distanceFromHome, keepFunction(), JSON.stringify, (state) => state.totalRisk + state.distanceFromHome)
+const ans = bfs(startingState, findNextStates, (state) => state.distanceFromHome, keepFunction(), JSON.stringify, (state) => state.totalRisk)
 
 console.log(ans);
 
@@ -89,6 +121,19 @@ const p2 = [
 
 cavernRisk = p2;
 
-const ans2 = bfs(startingState, findNextStates, (state) => state.distanceFromHome, keepFunction(), JSON.stringify, (state) => state.totalRisk + state.distanceFromHome);
+routes = new Array(500).fill(0).map(() => [[' ']]);
+const ans2 = bfs(startingState, findNextStates, (state) => state.distanceFromHome, keepFunction(), (state) => state.loc, (state) => state.totalRisk);
 
-console.log(ans2);
+// console.log(ans2);
+
+
+
+let routePath = ans2[0].state;
+
+while(routePath) {
+    const {x, y} = routePath.loc;
+    routes[y][x] = ' '.bgGreen;
+    routePath = routePath.prev;
+}
+const routeString = routes.map(row => row.map(v => v || ' ').join('')).join('\n');
+nextLog.then(() => delay(2000)).then(() => console.log(routeString));
