@@ -95,14 +95,23 @@ function mapExploder(map) {
 }
 
 function findMinX(map) {
-    return Math.min(...Array.from(map.keys()));
+    return Array.from(map.keys())
+        .reduce((a,b) => Math.min(a,b), Infinity);
+}
+function findMaxX(map) {
+    return Array.from(map.keys())
+        .reduce((a,b) => Math.max(a,b), -Infinity)
 }
 
 const mapYs = flatMap(m => Array.from(m.keys()));
 function findMinY(map) {
     const yList = mapYs(Array.from(map.values()));
-    return Math.min(...yList);
+    return yList.reduce((a,b) => Math.min(a,b), Infinity);
         
+}
+function findMaxY(map) {
+    const yList = mapYs(Array.from(map.values()));
+    return yList.reduce((a,b) => Math.max(a,b), -Infinity);
 }
 
 function drawScreen(map, characterPicker) {
@@ -163,7 +172,9 @@ module.exports = {
         mapCoordinate2DPrint,
         mapExploder,
         findMinX,
+        findMaxX,
         findMinY,
+        findMaxY,
     },
     staticInputGenerator,
     negate,
