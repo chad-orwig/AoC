@@ -32,17 +32,8 @@ const scanners = input.split('\n\n')
 
 const rotations = [
     ({x,y,z}) => [x,y,z],
-    ({x,y,z}) => [z,x,y],
+    ({x,y,z}) => [z,x,y], 
     ({x,y,z}) => [y,z,x],
-    ({x,y,z}) => [-x,y,z],
-    ({x,y,z}) => [z,-x,y],
-    ({x,y,z}) => [y,z,-x],
-    ({x,y,z}) => [x,-y,z],
-    ({x,y,z}) => [z,x,-y],
-    ({x,y,z}) => [-y,z,x],
-    ({x,y,z}) => [x,y,-z],
-    ({x,y,z}) => [-z,x,y],
-    ({x,y,z}) => [y,-z,x],
     ({x,y,z}) => [-x,-y,z],
     ({x,y,z}) => [z,-x,-y],
     ({x,y,z}) => [-y,z,-x],
@@ -52,14 +43,7 @@ const rotations = [
     ({x,y,z}) => [x,-y,-z],
     ({x,y,z}) => [-z,x,-y],
     ({x,y,z}) => [-y,-z,x],
-    ({x,y,z}) => [-x,-y,-z],
-    ({x,y,z}) => [-z,-x,-y],
-    ({x,y,z}) => [-y,-z,-x],
-    ({x,y,z}) => [x,z,y],
-    ({x,y,z}) => [y,x,z],
-    ({x,y,z}) => [z,y,x],
     ({x,y,z}) => [-x,z,y],
-    ({x,y,z}) => [y,-x,z],
     ({x,y,z}) => [z,y,-x],
     ({x,y,z}) => [x,z,-y],
     ({x,y,z}) => [-y,x,z],
@@ -67,15 +51,7 @@ const rotations = [
     ({x,y,z}) => [x,-z,y],
     ({x,y,z}) => [y,x,-z],
     ({x,y,z}) => [-z,y,x],
-    ({x,y,z}) => [-x,-z,y],
-    ({x,y,z}) => [y,-x,-z],
-    ({x,y,z}) => [-z,y,-x],
-    ({x,y,z}) => [-x,z,-y],
-    ({x,y,z}) => [-y,-x,z],
     ({x,y,z}) => [z,-y,-x],
-    ({x,y,z}) => [x,-z,-y],
-    ({x,y,z}) => [-y,x,-z],
-    ({x,y,z}) => [-z,-y,x],
     ({x,y,z}) => [-x,-z,-y],
     ({x,y,z}) => [-y,-x,-z],
     ({x,y,z}) => [-z,-y,-x],
@@ -158,16 +134,6 @@ const reducer = (s1, s2) => {
     }
 };
 
-function startWith(scanner) {
-    let result = scanners.reduce(reducer, scanner);
-    let newResult = scanners.reduce(reducer, result);
-    while(newResult.beacons.length > result.beacons.length) {
-        result = newResult;
-        newResult = scanners.reduce(reducer, result);
-    }
-    return result;
-}
-
 function getSmaller(remainingScanners=scanners) {
     let results = [];
     
@@ -175,7 +141,6 @@ function getSmaller(remainingScanners=scanners) {
     while(remainingScanners.length) {
         const result = remainingScanners.reduce(reducer);
         if(!result.idSet) result.idSet = new Set([result.id]);
-        console.log(result.idSet);
         remainingScanners = remainingScanners.filter(s => {
             if(!s.idSet) return !result.idSet.has(s.id)
             return Array.from(s.idSet)
@@ -184,10 +149,10 @@ function getSmaller(remainingScanners=scanners) {
         });
         results.push(result);
     }
-    console.log(results.length);
-    const [first, ...rest] = results;
-    return [...rest, first];
+    results.sort((a,b) => b.beacons.length - a.beacons.length);
+    return results;
 }
+console.time('pt1');
 
 let results = getSmaller(scanners);
 
@@ -197,7 +162,8 @@ while(results.length > 1) {
 
 const fullSet = results[0];
 console.log(fullSet.beacons.length);
-
+console.timeEnd('pt1');
+console.time('pt2');
 const scannerLocations = scanners
     .map(() => ({x: 0, y: 0, z: 0}))
     .map((loc, i) => {
@@ -216,3 +182,4 @@ const furthestDistance = scannerLocations
     .reduce((a,b) => Math.max(a,b));
 
 console.log(furthestDistance);
+console.timeEnd('pt2');
