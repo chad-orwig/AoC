@@ -32,15 +32,19 @@ function bfs(startingState, findNextStates, heuristic, keepFunction, hashFunctio
     const generateStates = flow(
         flatMap(stateGenerator(findNextStates)),
         filter((step) => writeThrough(visited, step.state)),
-        filter(checkHeuristic(heuristic, keepFunction, startingState, ans))
+        filter(checkHeuristic(heuristic, keepFunction, startingState))
     );
     while(queue.length) {
         const topState = queue.pop();
+        if(topState.hVal === 0) {
+            console.log(queue.slice(queue.length - 10));
+            return topState;
+        }
         const newStates = generateStates([topState]);
         newStates.forEach(state => queue.push(state));
         // queue = queue.filter(filterWithHeruisticAndKeepFunction);
         queue.sort((a,b) => memoizedCalcCost(b) - memoizedCalcCost(a));
-        if(ans.length) return orderBy(memoizedCalcCost, 'asc', ans);
+        
     }
 }
 
@@ -65,15 +69,14 @@ function makeWriteThrough(hashFunction){
     };
 }
 
-function checkHeuristic(heuristic, keepFunction, start, ans) {
+function checkHeuristic(heuristic, keepFunction, start) {
     let min = heuristic(start);
     return (runObject) => {
         const hVal = heuristic(runObject.state);
         const newMin = Math.min(min, hVal);
         min = newMin;
-        if(hVal === 0){
-            ans.push(runObject);
-        }
+        runObject.hVal = hVal;
+        // if(hVal === 0) console.log('potential', runObject)
 
         return !keepFunction || keepFunction(min, hVal, runObject.state);
     };
