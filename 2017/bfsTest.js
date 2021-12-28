@@ -183,11 +183,11 @@ function keep(closest, me) {
         myClosest = closest;
         console.log(`getting closer ${myClosest}`);
     }
-    return me - closest <= 5;
+    return me - closest <= 4;
 }
 
 const startTime = moment();
 const finalState = bfs(partTwoStartingState, findValidStates, completionGuess, keep);
 console.log(`we started ${startTime.fromNow()}`);
 console.log(finalState);
-console.log(finalState.steps);
+console.log(finalState.steps); // expected answer 55 in 6 minutes

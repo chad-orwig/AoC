@@ -260,35 +260,41 @@ function makeMove(state, ant, dest) {
 }
 
 function findNextStates(state) {
-    const antsThatCanMove = state.ants
+
+    const unHomedAnts = state.ants
         .filter(a => !isHome(state,a))
-        .filter(a => !isBlocked(state, a))
-        .filter(a => (!isInHallway(a)) || (isInHallway(a) && canGoHome(state, a)));
+        .filter(a => !isBlocked(state, a));
+
+    const antsThatCanGoHome = unHomedAnts
+        .filter(a => canGoHome(state, a));
+
+    if(antsThatCanGoHome.length) {
+        return antsThatCanGoHome.map(a => {
+            const { t1, t2 } = findHomes(a);
+            if(!state.ants.find(a => a.loc === t2)) return [a, t2];
+            return [a, t1];
+        }).map(([ant, dest]) => makeMove(state, ant, dest))
+    }
+    const antsThatCanMove = unHomedAnts
+        .filter(a => (!isInHallway(a)));
 
     const movesToMake = antsThatCanMove.flatMap(a => {
-        if(canGoHome(state, a)) {
-            const { t1, t2 } = findHomes(a);
-            if(!state.ants.find(a => a.loc === t2)) return [[a, t2]];
-            return [[a, t1]];
+        const hallwayOptions = [];
+        if(!isOccuped(l1, state) && !blockedByHs(l1, a.loc, state)) {
+            hallwayOptions.push(l1);
+            if(!isOccuped(l2, state)) hallwayOptions.push(l2);
         }
-        else {
-            const hallwayOptions = [];
-            if(!isOccuped(l1, state) && !blockedByHs(l1, a.loc, state)) {
-                hallwayOptions.push(l1);
-                if(!isOccuped(l2, state)) hallwayOptions.push(l2);
-            }
-            if(!isOccuped(r1, state) && !blockedByHs(r1, a.loc, state)) {
-                hallwayOptions.push(r1);
-                if(!isOccuped(r2, state)) hallwayOptions.push(r2);
-            }
-            if(!isOccuped(h1, state) && !blockedByHs(h1, a.loc, state))
-                hallwayOptions.push(h1);
-            if(!isOccuped(h2, state) && !blockedByHs(h2, a.loc, state))
-                hallwayOptions.push(h2);
-            if(!isOccuped(h3, state) && !blockedByHs(h3, a.loc, state))
-                hallwayOptions.push(h3);
-            return hallwayOptions.map(loc => [a, loc]);
+        if(!isOccuped(r1, state) && !blockedByHs(r1, a.loc, state)) {
+            hallwayOptions.push(r1);
+            if(!isOccuped(r2, state)) hallwayOptions.push(r2);
         }
+        if(!isOccuped(h1, state) && !blockedByHs(h1, a.loc, state))
+            hallwayOptions.push(h1);
+        if(!isOccuped(h2, state) && !blockedByHs(h2, a.loc, state))
+            hallwayOptions.push(h2);
+        if(!isOccuped(h3, state) && !blockedByHs(h3, a.loc, state))
+            hallwayOptions.push(h3);
+        return hallwayOptions.map(loc => [a, loc]);
     });
     
     const nextStates = movesToMake.map(([ant, dest]) => makeMove(state, ant, dest));
@@ -368,3 +374,4 @@ path.reverse();
 path.map(s => stateToString(s))
 .forEach(s => console.log(s));
 console.log(ans.state);
+

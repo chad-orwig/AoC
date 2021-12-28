@@ -2,6 +2,7 @@ const filter = require('lodash/fp/filter');
 const flatMap = require('lodash/fp/flatMap');
 const flow = require('lodash/fp/flow');
 const orderBy = require('lodash/fp/orderBy');
+const PriorityQueue = require('../PriorityQueue');
 /**
  * @template T
  * @param {T} startingState 
@@ -12,20 +13,21 @@ const orderBy = require('lodash/fp/orderBy');
  * @param {function(T):number} [calcCost]
  * @returns 
  */
-function bfs(startingState, findNextStates, heuristic, keepFunction, hashFunction=JSON.stringify, calcCost=()=>0) {
+function bfs(startingState, findNextStates, heuristic, keepFunction, hashFunction=JSON.stringify, calcCost) {
     const memoizedCalcCost = ((calcCost) => {
         const seenMap = new Map();
         return (step) => {
-            const cost = seenMap.get(step.state) ?? calcCost(step.state);
+            const cost = seenMap.get(step.state) ?? (calcCost ? calcCost(step.state): step.steps);
             seenMap.set(step.state, cost);
             return cost;
         }
     })(calcCost);
     const writeThrough = makeWriteThrough(hashFunction);
-    let queue = [{
+    let queue = new PriorityQueue((a, b) => memoizedCalcCost(a) < memoizedCalcCost(b));
+    queue.push({
         state : startingState,
         steps : 0
-    }];
+    });
     const visited = new Set();
     writeThrough(visited, startingState);
     const ans = [];
@@ -34,16 +36,26 @@ function bfs(startingState, findNextStates, heuristic, keepFunction, hashFunctio
         filter((step) => writeThrough(visited, step.state)),
         filter(checkHeuristic(heuristic, keepFunction, startingState))
     );
-    while(queue.length) {
+    let count = 0;
+    console.time('100k');
+    while(queue.size()) {
+        count++;
         const topState = queue.pop();
+        if(count === 100000) {
+            // console.log(topState);
+            console.timeEnd('100k');
+            console.time('100k');
+            count = 0;
+        }
         if(topState.hVal === 0) {
-            console.log(queue.slice(queue.length - 10));
+            // console.log(queue.slice(queue.length - 10));
             return topState;
         }
         const newStates = generateStates([topState]);
-        newStates.forEach(state => queue.push(state));
+        queue.push(...newStates);
+        // newStates.forEach(state => queue.push(state));
         // queue = queue.filter(filterWithHeruisticAndKeepFunction);
-        queue.sort((a,b) => memoizedCalcCost(b) - memoizedCalcCost(a));
+        // queue.sort((a,b) => b.state.energy - a.state.energy);
         
     }
 }
