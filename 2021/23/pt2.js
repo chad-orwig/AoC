@@ -135,15 +135,15 @@ function calcDistance(source, dest, state) {
     
     return base + extraSource + extraDest;
 }
+const costPerStep = {
+    'A': 1,
+    'B': 10,
+    'C': 100,
+    'D': 1000,
+}
 function calcEnergy(source, dest, type, state) {
     const distance = calcDistance(source, dest, state);
-    switch(type) {
-        case 'A': return distance;
-        case 'B': return distance * 10;
-        case 'C': return distance * 100;
-        case 'D': return distance * 1000;
-        default: throw new Error();
-    }
+    return distance * costPerStep[type];
 }
 const goHome = (state) => (ant) => {
     const newAnt = { ...ant, loc: ant.type.toLowerCase()};
@@ -217,26 +217,22 @@ const heuristic = (state) => {
         .map(([_k, queue]) => queue.length)
         .reduce((a,b) => a + b, 0);
 }
-
-const bestToThisSpot = new Map();
-
-let bestSeen = Infinity
-function keepFunction(_h1, _h2, state) {
-    // if(state.energy === 40174) return false;
-    if(_h2 < bestSeen) {
-        console.log('closer', _h2);
-        bestSeen = _h2;
-    }
-    const key = JSON.stringify(state.queues) + '|' + JSON.stringify(state.hallwayAnts);
-    const energyAtState = bestToThisSpot.get(key) ?? Infinity;
-    if(state.energy >= energyAtState ) {
-        return false;
-    }
-    bestToThisSpot.set(key, state.energy);
-    return true;
-}
 console.time();
-const ans = bfs(startingState,findNextStates,heuristic,keepFunction, state => state, state => state.energy);
+
+function aStar(state) {
+    return Object.entries(state.queues)
+        .filter(([key, queue]) => !queueReady(queue, key.toUpperCase()))
+        .flatMap(([_k, queue]) => queue)
+        .map(({type}) => type)
+        .map(t => costPerStep[t])
+        .map(c => c * 10)
+        .reduce((a,b) => a + b, 0)
+        + state.hallwayAnts
+        .map(({type, loc}) => costPerStep[type] * (distances[loc][type.toLowerCase()] + 2) )
+        .reduce((a,b) => a + b, 0)
+    
+}
+const ans = bfs(startingState,findNextStates,heuristic,undefined, state => JSON.stringify(state.queues) + '|' + JSON.stringify(state.hallwayAnts), state => state.energy + aStar(state));
 
 function stateToString(state) {
     const checker = (loc) => isOccuped(loc,state)?.type ?? '.';
