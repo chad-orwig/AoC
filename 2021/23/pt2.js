@@ -235,7 +235,7 @@ function keepFunction(_h1, _h2, state) {
     bestToThisSpot.set(key, state.energy);
     return true;
 }
-
+console.time();
 const ans = bfs(startingState,findNextStates,heuristic,keepFunction, state => state, state => state.energy);
 
 function stateToString(state) {
@@ -259,3 +259,4 @@ while(next) {
 path.reverse();
 path.map(s => stateToString(s))
 .forEach(s => console.log(s));
+console.timeEnd();
