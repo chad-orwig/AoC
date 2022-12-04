@@ -1,4 +1,4 @@
-pub const primary:&str = "A X
+pub const PRIMARY:&str = "A X
 C X
 C X
 C X

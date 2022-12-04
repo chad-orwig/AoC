@@ -1,4 +1,4 @@
-pub const primary:&str = "RCMRQjLLWGTjnlnZwwnZJRZH
+pub const PRIMARY:&str = "RCMRQjLLWGTjnlnZwwnZJRZH
 qnvfhpSbvSppNddNdSqbbmmdPrwttJVrVPDVrJtHtwPZhrPJ
 BFpFzSSqSFFSvQsnWgCMjTLzng
 DbWVcVRRdlLffvtqjTWNgQ

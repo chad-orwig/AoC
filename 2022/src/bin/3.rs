@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use lib::inputs::d3::primary;
+use lib::inputs::d3::PRIMARY;
 #[derive(Debug)]
 struct Rucksack {
   left: HashMap<char, u64>,
@@ -42,7 +42,7 @@ impl Rucksack {
 }
 
 fn get_input() -> Vec<Rucksack> {
-  return primary.split("\n")
+  return PRIMARY.split("\n")
     .map(Rucksack::new)
     .collect();
 }

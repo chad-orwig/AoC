@@ -1,4 +1,4 @@
-use lib::inputs::d2::primary;
+use lib::inputs::d2::PRIMARY;
 
 #[derive(Debug)]
 pub enum Choice {
@@ -106,11 +106,11 @@ impl Strat {
 }
 
 pub fn get_input1() -> Vec<Strat> {
-    return primary.split("\n").map(Strat::new1).collect::<Vec<Strat>>();
+    return PRIMARY.split("\n").map(Strat::new1).collect::<Vec<Strat>>();
 }
 
 pub fn get_input2() -> Vec<Strat> {
-    return primary.split("\n").map(Strat::new2).collect::<Vec<Strat>>();
+    return PRIMARY.split("\n").map(Strat::new2).collect::<Vec<Strat>>();
 }
 fn main() {
     let input = get_input1();
