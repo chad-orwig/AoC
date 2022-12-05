@@ -6,16 +6,16 @@ use regex::Regex;
 
 #[derive(Debug)]
 struct Instruction {
-  count: u16,
+  count: u8,
   source: u8,
   dest: u8,
 }
 
 impl Instruction {
   pub fn new(line:&str) -> Self {
-    static line_matcher: Lazy<Regex> = Lazy::new(||Regex::new(r"^move (\d+) from (\d+) to (\d+)$").unwrap());
+    static LINE_MATCHER: Lazy<Regex> = Lazy::new(||Regex::new(r"^move (\d+) from (\d+) to (\d+)$").unwrap());
 
-    let nums = line_matcher.captures_iter(line).next().unwrap();
+    let nums = LINE_MATCHER.captures_iter(line).next().unwrap();
     Self {
       count: nums[1].parse().unwrap(),
       source: nums[2].parse::<u8>().unwrap() - 1u8,
@@ -29,17 +29,47 @@ fn get_input() -> ([VecDeque<char>; 9], Vec<Instruction>) {
 
   let instructions = split[1].split("\n").map(Instruction::new).collect::<Vec<_>>();
 
-  let state:[VecDeque<char>; 9] = [
-    VecDeque::from(['W','R','T','G']),
-    VecDeque::from(['W','V','S','M','P','H','C','G']),
-    VecDeque::from(['M','G','S','T','L','C']),
-    VecDeque::from(['F','R','W','M','D','H','J']),
-    VecDeque::from(['J','F','W','S','H','L','Q','P']),
-    VecDeque::from(['S','M','F','N','D','J','P']),
-    VecDeque::from(['J','S','C','G','F','D','B','Z']),
-    VecDeque::from(['B','T','R']),
-    VecDeque::from(['C','L','W','N','H']),
+  // let state:[VecDeque<char>; 9] = [
+  //   VecDeque::from(['W','R','T','G']),
+  //   VecDeque::from(['W','V','S','M','P','H','C','G']),
+  //   VecDeque::from(['M','G','S','T','L','C']),
+  //   VecDeque::from(['F','R','W','M','D','H','J']),
+  //   VecDeque::from(['J','F','W','S','H','L','Q','P']),
+  //   VecDeque::from(['S','M','F','N','D','J','P']),
+  //   VecDeque::from(['J','S','C','G','F','D','B','Z']),
+  //   VecDeque::from(['B','T','R']),
+  //   VecDeque::from(['C','L','W','N','H']),
+  // ];
+
+  let mut state:[VecDeque<char>; 9] = [
+    VecDeque::new(),
+    VecDeque::new(),
+    VecDeque::new(),
+    VecDeque::new(),
+    VecDeque::new(),
+    VecDeque::new(),
+    VecDeque::new(),
+    VecDeque::new(),
+    VecDeque::new(),
   ];
+
+  let r = Regex::new(r"^(.{3}\s)(.{3}\s)(.{3}\s)(.{3}\s)(.{3}\s)(.{3}\s)(.{3}\s)(.{3}\s)(.{3})$").unwrap();
+
+  split[0].split("\n")
+    .map(|line|r.captures(line))
+    .filter(Option::is_some)
+    .map(Option::unwrap)
+    .for_each(|c| {
+      for i in 1..10 {
+        let c = c[i].chars().nth(1);
+        match c {
+          Some('A'..='Z') => state[i - 1].push_back(c.unwrap()),
+          _ => (),
+        }
+      }
+    });
+
+
 
   return (state, instructions);
 }
