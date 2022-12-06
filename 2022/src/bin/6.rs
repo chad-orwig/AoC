@@ -1,31 +1,28 @@
-const INPUT: &str = "1,1,1,3,3,2,1,1,1,1,1,4,4,1,4,1,4,1,1,4,1,1,1,3,3,2,3,1,2,1,1,1,1,1,1,1,3,4,1,1,4,3,1,2,3,1,1,1,5,2,1,1,1,1,2,1,2,5,2,2,1,1,1,3,1,1,1,4,1,1,1,1,1,3,3,2,1,1,3,1,4,1,2,1,5,1,4,2,1,1,5,1,1,1,1,4,3,1,3,2,1,4,1,1,2,1,4,4,5,1,3,1,1,1,1,2,1,4,4,1,1,1,3,1,5,1,1,1,1,1,3,2,5,1,5,4,1,4,1,3,5,1,2,5,4,3,3,2,4,1,5,1,1,2,4,1,1,1,1,2,4,1,2,5,1,4,1,4,2,5,4,1,1,2,2,4,1,5,1,4,3,3,2,3,1,2,3,1,4,1,1,1,3,5,1,1,1,3,5,1,1,4,1,4,4,1,3,1,1,1,2,3,3,2,5,1,2,1,1,2,2,1,3,4,1,3,5,1,3,4,3,5,1,1,5,1,3,3,2,1,5,1,1,3,1,1,3,1,2,1,3,2,5,1,3,1,1,3,5,1,1,1,1,2,1,2,4,4,4,2,2,3,1,5,1,2,1,3,3,3,4,1,1,5,1,3,2,4,1,5,5,1,4,4,1,4,4,1,1,2";
-fn main() {
-    let mut fish = [0u64; 9];
-    INPUT.split(",")
-      .map(str::parse::<usize>)
-      .map(Result::unwrap)
-      .for_each(|s| fish[s] += 1);
-    
-    for _ in 0..80 {
-      fish = fish_tick(fish);
-    }
-    println!("{:?}", fish.iter().sum::<u64>());
+use std::collections::{VecDeque, HashSet};
 
-    for _ in 80..256 {
-      fish = fish_tick(fish);
-    }
-    println!("{:?}", fish.iter().sum::<u64>());
+use lib::inputs::d6::PRIMARY;
+
+fn all_the_same (dq:&VecDeque<char>, size:usize) -> bool{
+  return dq.iter().collect::<HashSet<_>>().len() == size;
 }
 
-fn fish_tick(fish:[u64;9]) -> [u64;9]{
-  return fish
-    .iter()
-    .enumerate()
-    .map(|(index, _)| match index {
-        6 => fish[7] + fish[0],
-        8 => fish[0],
-        _ => fish[index + 1]
-    }).collect::<Vec<u64>>()
-    .try_into()
-    .unwrap();
+fn do_the_thing(input: &str, size:usize) -> Option<usize> {
+  let mut last_x: VecDeque<char> = VecDeque::with_capacity(size);
+
+  return input.char_indices().fold(Option::None::<usize>, |v, (i, c)| match v {
+      Some::<usize>(_) => v,
+      _ => {
+        if last_x.len() == size { last_x.pop_front(); }
+        last_x.push_back(c);
+        return if all_the_same(&last_x, size) {Some(i + 1)} else { None::<usize> }
+      }
+  });
+}
+fn main() {
+
+  let p1 = do_the_thing(PRIMARY, 4);
+  println!("{:?}", p1.unwrap());
+
+  let p2 = do_the_thing(PRIMARY, 14);
+  println!("{:?}", p2.unwrap());
 }

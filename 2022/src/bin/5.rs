@@ -29,18 +29,6 @@ fn get_input() -> ([VecDeque<char>; 9], Vec<Instruction>) {
 
   let instructions = split[1].split("\n").map(Instruction::new).collect::<Vec<_>>();
 
-  // let state:[VecDeque<char>; 9] = [
-  //   VecDeque::from(['W','R','T','G']),
-  //   VecDeque::from(['W','V','S','M','P','H','C','G']),
-  //   VecDeque::from(['M','G','S','T','L','C']),
-  //   VecDeque::from(['F','R','W','M','D','H','J']),
-  //   VecDeque::from(['J','F','W','S','H','L','Q','P']),
-  //   VecDeque::from(['S','M','F','N','D','J','P']),
-  //   VecDeque::from(['J','S','C','G','F','D','B','Z']),
-  //   VecDeque::from(['B','T','R']),
-  //   VecDeque::from(['C','L','W','N','H']),
-  // ];
-
   let mut state:[VecDeque<char>; 9] = [
     VecDeque::new(),
     VecDeque::new(),
