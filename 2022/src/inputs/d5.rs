@@ -1,4 +1,4 @@
-pub const PRIMARY: &str = "    [W]         [J]     [J]        
+pub const PRIMARY: &str = r#"    [W]         [J]     [J]        
     [V]     [F] [F] [S] [S]        
     [S] [M] [R] [W] [M] [C]        
     [M] [G] [W] [S] [F] [G]     [C]
@@ -508,4 +508,4 @@ move 1 from 8 to 2
 move 6 from 4 to 6
 move 9 from 2 to 1
 move 1 from 3 to 9
-move 3 from 7 to 5";
+move 3 from 7 to 5"#;
