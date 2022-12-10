@@ -102,7 +102,7 @@ fn main() {
 
   for y in 0..trees.len() {
     for x in 0..trees[0].len() {
-      let tree = &trees[y][x];
+      let tree  = &trees[y][x];
       let left_neighbors = &trees[y][..x];
       let blocking_left_neighbor = left_neighbors.iter()
         .rev()
@@ -112,7 +112,7 @@ fn main() {
         .next();
       
       let left = match blocking_left_neighbor {
-        Some(i) => i as u16,
+        Some(i) => i as u16 + 1,
         None => left_neighbors.len() as u16,
       };
 
@@ -133,7 +133,7 @@ fn main() {
         .next();
       
       let up = match blocking_up_neighbor {
-        Some(i) => i as u16,
+        Some(i) => i as u16 + 1,
         None => up_neighbors.len() as u16,
       };
 
@@ -155,7 +155,7 @@ fn main() {
         .next();
       
       let right = match blocking_right_neighbor {
-        Some(i) => i as u16,
+        Some(i) => i as u16 + 1,
         None => right_neighbors.len() as u16,
       };
 
@@ -171,14 +171,13 @@ fn main() {
       let tree = col[y];
       let down_neighbors = col.get(y + 1..).unwrap_or_default();
       let blocking_down_neighbor = down_neighbors.iter()
-        .rev()
         .enumerate()
         .filter(|(_, t)| t.height >= tree.height)
         .map(|(i,_)| i)
         .next();
       
       let down = match blocking_down_neighbor {
-        Some(i) => i as u16,
+        Some(i) => i as u16 + 1,
         None => down_neighbors.len() as u16,
       };
 
@@ -196,4 +195,7 @@ fn main() {
     
 
   println!("{:?}", p2);
+
+  // trees.iter()
+  //   .for_each(|row| row.iter().for_each(|t|println!("{:?}", t)));
 }
