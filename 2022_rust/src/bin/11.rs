@@ -103,8 +103,6 @@ fn main() {
             monkeys[new_owner_index].items.push(worry);
           });
       }
-      // monkeys.iter().enumerate().for_each(|(i, m)| println!("Monkey {}: {:?}", i, m.items));
-      // println!("=====");
     }
     monkeys.sort_by(|m1,m2| m2.count.cmp(&m1.count));
 
