@@ -3,25 +3,6 @@ use std::collections::HashSet;
 
 use lib::inputs::d9::PRIMARY;
 
-fn print_rope(rope: &[(i32,i32)]) -> () {
-  let mut rows = [['.';41]; 41];
-  rows[20][20] = 's';
-  let range = 0..41;
-  rope.iter()
-    .enumerate()
-    .rev()
-    .for_each(|(i, (x,y))| {
-      if !range.contains(x) || !range.contains(y) {return;}
-      let row = 20 - y;
-      let col = 20 - x;
-      rows[row as usize][col as usize] = char::from_digit(i as u32, 10).unwrap();
-    
-    });
-  rows.iter()
-    .map(|arr| arr.iter().collect::<String>())
-    .for_each(|s| println!("{}",s));
-}
-
 fn main() {
   let left = |(x, y): &(i32, i32)| (x - 1, y.to_owned());
   let right = |(x, y): &(i32, i32)| (x + 1, y.to_owned());

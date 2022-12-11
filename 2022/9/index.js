@@ -31,7 +31,8 @@ function getChaseFunction({x,y}) {
   }
 }
 
-const visits = new Set(['0,0']);
+const k1Visits = new Set(['0,0']);
+const k9Visits = new Set(['0,0']);
 
 function chase(k1, k2) {
   const diffs = {
@@ -53,33 +54,23 @@ function tick(dir, knots) {
     if(newArr.length === 0) return [travelFunctions[dir](knot)];
     let prev = newArr[i - 1];
     return [...newArr, chase(prev, knot)];
-  }, [])
-  const tail = newKnots[newKnots.length - 1];
-  visits.add(`${tail.x},${tail.y}`);
+  }, []);
+  const k1 = newKnots[1];
+  const k9 = newKnots[9];
+  k1Visits.add(`${k1.x},${k1.y}`);
+  k9Visits.add(`${k9.x},${k9.y}`);
   return newKnots;
 
 }
 
-const startKnot = () => ({ x: 0, y: 0});
-
-let head = startKnot();
-let tail = startKnot();
-
-input.forEach(({dir, num}) => {
-  for (let i = 0; i < num; i++) {
-    [head, tail] = tick(dir, [head, tail]);
-  }
-});
-
-console.log(visits.size);
+const startKnot = () => ({x: 0, y: 0});
 
 let rope = Array.from({length: 10}).map(startKnot);
 
-visits.clear();
-visits.add('0,0');
 input.forEach(({dir, num}) => {
   for (let i = 0; i < num; i++) {
     rope = tick(dir, rope);
   }
 });
-console.log(visits.size);
+console.log(k1Visits.size);
+console.log(k9Visits.size);
