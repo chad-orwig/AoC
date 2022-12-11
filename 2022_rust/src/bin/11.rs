@@ -3,41 +3,40 @@ use std::collections::HashSet;
 use lib::inputs::d11::PRIMARY;
 use once_cell::sync::Lazy;
 use regex::Regex;
-use num_bigint::BigInt;
 use num_traits::{One, Zero};
 
 struct Monkey {
-  items: Vec<BigInt>,
+  items: Vec<i64>,
   count: u32,
-  divisor: BigInt,
-  item_test: Box<dyn Fn(&BigInt) -> bool>,
-  operation: Box<dyn Fn(&BigInt) -> BigInt>,
+  divisor: i64,
+  item_test: Box<dyn Fn(&i64) -> bool>,
+  operation: Box<dyn Fn(&i64) -> i64>,
   throw_options: (usize, usize),
 }
 
 const ITEM_TEST_LINE:Lazy<Regex> = Lazy::new(||Regex::new(r"^Test: divisible by (\d+)$").unwrap());
-fn build_item_test(line: &str) -> (Box<impl Fn(&BigInt) -> bool>, BigInt) {
+fn build_item_test(line: &str) -> (Box<impl Fn(&i64) -> bool>, i64) {
   let num_str = &ITEM_TEST_LINE.captures(line).unwrap()[1];
-  let num = num_str.parse::<BigInt>().unwrap();
+  let num = num_str.parse::<i64>().unwrap();
   let num_clone = num.clone();
 
-  let test = Box::new(move |worry: &BigInt| -> bool {worry % &num == BigInt::zero()});
+  let test = Box::new(move |worry: &i64| -> bool {worry % &num == i64::zero()});
   return (test, num_clone);
 }
 
 const OPERATION_LINE: Lazy<Regex> = Lazy::new(||Regex::new(r"Operation: new = old (\+|\*) (.*)$").unwrap());
-fn build_operation(line: &str) -> Box<impl Fn(&BigInt) -> BigInt> {
+fn build_operation(line: &str) -> Box<impl Fn(&i64) -> i64> {
   let captures = OPERATION_LINE.captures(line).unwrap();
   let operator = match &captures[1] {
-    "*" => |a: &BigInt ,b: &BigInt| {a * b},
-    "+" => |a: &BigInt ,b: &BigInt| {a + b},
+    "*" => |a: &i64 ,b: &i64| {a * b},
+    "+" => |a: &i64 ,b: &i64| {a + b},
     _ => panic!("Unexpected operator: {}", &captures[1]),
   };
-  let second_num_option = captures[2].parse::<BigInt>();
+  let second_num_option = captures[2].parse::<i64>();
   let has_second_num = second_num_option.is_ok();
   let second_num = second_num_option.unwrap_or_default();
 
-  let operation = Box::new(move |old: &BigInt| -> BigInt {
+  let operation = Box::new(move |old: &i64| -> i64 {
     let this_second_num = if has_second_num {&second_num} else {old};
     operator(old, &this_second_num)
   });
@@ -53,7 +52,7 @@ fn main() {
         .and_then(|l| l.strip_prefix("Starting items: "))
         .unwrap()
         .split(", ")
-        .map(str::parse::<BigInt>)
+        .map(str::parse::<i64>)
         .map(Result::unwrap)
         .collect::<Vec<_>>();
       let operation = build_operation(lines.next().unwrap());
@@ -80,7 +79,7 @@ fn main() {
       .map(|m| m.divisor.clone())
       .collect::<HashSet<_>>()
       .iter()
-      .fold(BigInt::one(), |a,b| a * b);
+      .fold(i64::one(), |a,b| a * b);
 
     for _ in 0..10000 {
       for monkey_index in 0..monkeys.len() {
@@ -109,7 +108,7 @@ fn main() {
     }
     monkeys.sort_by(|m1,m2| m2.count.cmp(&m1.count));
 
-    let monkey_biz = monkeys.iter().take(2).fold(BigInt::one(),|a,b| a * BigInt::from(b.count));
+    let monkey_biz = monkeys.iter().take(2).fold(i64::one(),|a,b| a * i64::from(b.count));
 
     println!("{}", monkey_biz);
 }
