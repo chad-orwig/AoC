@@ -3,7 +3,7 @@ use std::collections::HashSet;
 use lib::inputs::d11::PRIMARY;
 use once_cell::sync::Lazy;
 use regex::Regex;
-use num_traits::{One, Zero};
+use num::{One, Zero};
 
 struct Monkey {
   items: Vec<i64>,
