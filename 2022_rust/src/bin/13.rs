@@ -1,6 +1,6 @@
-use std::{cmp::{min, Reverse}, fmt::{Debug, Error}};
+use std::{cmp::{min}, fmt::{Debug, Error}};
 
-use lib::{inputs::d13::{TEST, PRIMARY}, utils::FunctionallySplittable};
+use lib::{inputs::d13::PRIMARY, utils::FunctionallySplittable};
 
 #[derive(PartialEq, Eq, Hash, Clone)]
 struct Packet {
