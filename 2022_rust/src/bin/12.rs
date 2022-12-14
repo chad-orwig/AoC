@@ -1,6 +1,6 @@
 use std::{collections::HashMap, cmp::Reverse, ops::Add};
 
-use lib::{inputs::d12::PRIMARY, utils::{Searchable, search}};
+use lib::{inputs::d12::PRIMARY, utils::search::{Searchable, search}};
 use num::{Signed, abs};
 
 #[derive(PartialEq, Eq, Hash, Debug)]
@@ -38,8 +38,6 @@ fn add_point<T: Add<Output = T> + Copy> (a: &(T, T), b: &(T, T)) -> (T, T) {
 }
 
 fn main() {
-  let start:(i64, i64) = (0, 0);
-  let end: (i64, i64) = (0, 0);
   let terrain: HashMap<(i64,i64), char> = PRIMARY.split("\n")
     .enumerate()
     .flat_map(|(y, r)| {
@@ -111,7 +109,7 @@ fn main() {
   println!("{:?}", p1);
 
   let a_locs = terrain.iter()
-    .filter(|(loc, c)| **c == 'a')
+    .filter(|(_, c)| **c == 'a')
     .map(|(loc,c)| State {
       loc: loc.clone(),
       terrain: c.to_owned(),
