@@ -21,7 +21,6 @@ impl Debug for Packet {
     match self {
       Packet::Num(n) => n.fmt(f),
       Packet::List(l) => f.debug_list().entries(l).finish(),
-      _ => Err(Error),
     }
   }
 }
@@ -51,25 +50,7 @@ impl Ord for Packet {
 }
 
 impl Packet {
-    fn as_num(self) -> u64 {
-      match self {
-        Packet::Num(n) => n,
-        Packet::List(_) => panic!("Tried to get a list as num"),
-      }
-    }
      fn as_list(self) -> Vec<Packet> {
-      match self {
-        Packet::Num(_) => panic!("Tried to get a num as list"),
-        Packet::List(l ) => l,
-      }
-    }
-    fn get_num(&self) -> &u64 {
-      match self {
-        Packet::Num(n) => n,
-        Packet::List(_) => panic!("Tried to get a list as num"),
-      }
-    }
-    fn get_list(&self) -> &Vec<Packet> {
       match self {
         Packet::Num(_) => panic!("Tried to get a num as list"),
         Packet::List(l ) => l,
