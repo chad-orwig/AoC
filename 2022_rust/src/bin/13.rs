@@ -3,9 +3,9 @@ use std::{cmp::{min}, fmt::{Debug, Error}};
 use lib::{inputs::d13::PRIMARY, strings::FunctionallySplittable};
 
 #[derive(PartialEq, Eq, Hash, Clone)]
-struct Packet {
-  num: Option<u64>,
-  list: Option<Vec<Packet>>
+enum Packet {
+  Num(u64),
+  List(Vec<Packet>),
 }
 
 #[derive(Debug)]
@@ -18,9 +18,9 @@ struct Pair {
 impl Debug for Packet {
   fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
 
-    match (self.num, &self.list) {
-      (Some(n), None) => n.fmt(f),
-      (None, Some(l)) => f.debug_list().entries(l).finish(),
+    match self {
+      Packet::Num(n) => n.fmt(f),
+      Packet::List(l) => f.debug_list().entries(l).finish(),
       _ => Err(Error),
     }
   }
@@ -34,11 +34,9 @@ impl PartialOrd for Packet {
 
 impl Ord for Packet {
   fn cmp(&self, other: &Self) -> std::cmp::Ordering {
-    match (self.num.as_ref(), other.num.as_ref()) {
-      (Some(my_num), Some(their_num)) => return my_num.cmp(their_num),
-      (None, None) => {
-        let my_list = self.list.as_ref().unwrap();
-        let their_list = other.list.as_ref().unwrap();
+    match (self, other) {
+      (Packet::Num(my_num), Packet::Num(their_num)) => return my_num.cmp(their_num),
+      (Packet::List(my_list), Packet::List(their_list)) => {
         let max_length = min(my_list.len(), their_list.len());
         for i in 0..max_length {
           let compare = my_list[i].cmp(&their_list[i]);
@@ -46,18 +44,41 @@ impl Ord for Packet {
         }
         my_list.len().cmp(&their_list.len())
       },
-      (Some(_), None) => return Packet { num: None, list: Some(vec![self.clone()])}.cmp(other),
-      (None, Some(_)) => return self.cmp(&Packet { num: None, list: Some(vec![other.clone()])}),
+      (Packet::Num(_), Packet::List(_)) => return Packet::List(vec![self.clone()]).cmp(other),
+      (Packet::List(_), Packet::Num(_)) => return self.cmp(&Packet::List(vec![other.clone()])),
     }
   }
 }
 
 impl Packet {
+    fn as_num(self) -> u64 {
+      match self {
+        Packet::Num(n) => n,
+        Packet::List(_) => panic!("Tried to get a list as num"),
+      }
+    }
+     fn as_list(self) -> Vec<Packet> {
+      match self {
+        Packet::Num(_) => panic!("Tried to get a num as list"),
+        Packet::List(l ) => l,
+      }
+    }
+    fn get_num(&self) -> &u64 {
+      match self {
+        Packet::Num(n) => n,
+        Packet::List(_) => panic!("Tried to get a list as num"),
+      }
+    }
+    fn get_list(&self) -> &Vec<Packet> {
+      match self {
+        Packet::Num(_) => panic!("Tried to get a num as list"),
+        Packet::List(l ) => l,
+      }
+    }
     fn from(line: &str) -> Result<Self, String> {
-      if !line.starts_with("[") { return Ok(Packet {
-        num: Some(line.parse().map_err(|_| "Failed to parse num")?),
-        list: None,
-      });}
+      if !line.starts_with("[") { 
+        return Ok(Packet::Num(line.parse().map_err(|_| "Failed to parse num")?));
+      }
       
       let list: Result<Vec<Packet>, String> = line.strip_prefix("[").ok_or("prefix wrong")
         ?.strip_suffix("]").ok_or(format!("suffix wrong {}", line))
@@ -65,10 +86,7 @@ impl Packet {
         .map(Packet::from)
         .collect();
 
-      Ok(Packet {
-        list: Some(list?),
-        num: None,
-      })
+      Ok(Packet::List(list?))
     }
 }
 
@@ -80,14 +98,14 @@ impl Pair {
 
       let mut i = packets.into_iter();
 
-      let left = i.next().ok_or("Missing left packet")?;
-      let right = i.next().ok_or("Missing Right Packet")?;
+      let left = i.next().ok_or("Missing left packet")?.as_list();
+      let right = i.next().ok_or("Missing Right Packet")?.as_list();
 
       if i.next().is_some(){ return Err(String::from("More than two packets in Pair"));}
-
+      
       Ok(Pair {
-        left: left.list.ok_or("left item in pair was not a list")?,
-        right: right.list.ok_or("right item in pair was not a list")?,
+        left,
+        right,
       })
     }
 }
@@ -122,10 +140,8 @@ fn main() {
 
   let mut packets: Vec<_> = pairs.into_iter()
     .flat_map(|pair|vec![pair.left, pair.right].into_iter())
-    .map(|list| Packet {
-      list: Some(list),
-      num: None,
-    }).collect();
+    .map(|list| Packet::List(list))
+    .collect();
 
   let dividers = (Packet::from("[[2]]").unwrap(), Packet::from("[[6]]").unwrap());
   
