@@ -8,20 +8,22 @@ struct Packet {
   list: Option<Vec<Packet>>
 }
 
-impl Debug for Packet {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-
-      match (self.num, &self.list) {
-        (Some(n), None) => n.fmt(f),
-        (None, Some(l)) => f.debug_list().entries(l).finish(),
-        _ => Err(Error),
-      }
-    }
-}
 #[derive(Debug)]
 struct Pair {
   left: Vec<Packet>,
   right: Vec<Packet>
+}
+
+
+impl Debug for Packet {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+
+    match (self.num, &self.list) {
+      (Some(n), None) => n.fmt(f),
+      (None, Some(l)) => f.debug_list().entries(l).finish(),
+      _ => Err(Error),
+    }
+  }
 }
 
 impl PartialOrd for Packet {
@@ -31,23 +33,23 @@ impl PartialOrd for Packet {
 }
 
 impl Ord for Packet {
-    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
-      match (self.num.as_ref(), other.num.as_ref()) {
-        (Some(my_num), Some(their_num)) => return my_num.cmp(their_num),
-        (None, None) => {
-          let my_list = self.list.as_ref().unwrap();
-          let their_list = other.list.as_ref().unwrap();
-          let max_length = min(my_list.len(), their_list.len());
-          for i in 0..max_length {
-            let compare = my_list[i].cmp(&their_list[i]);
-            if compare.is_ne() { return compare; }
-          }
-          my_list.len().cmp(&their_list.len())
-        },
-        (Some(_), None) => return Packet { num: None, list: Some(vec![self.clone()])}.cmp(other),
-        (None, Some(_)) => return self.cmp(&Packet { num: None, list: Some(vec![other.clone()])}),
-      }
+  fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+    match (self.num.as_ref(), other.num.as_ref()) {
+      (Some(my_num), Some(their_num)) => return my_num.cmp(their_num),
+      (None, None) => {
+        let my_list = self.list.as_ref().unwrap();
+        let their_list = other.list.as_ref().unwrap();
+        let max_length = min(my_list.len(), their_list.len());
+        for i in 0..max_length {
+          let compare = my_list[i].cmp(&their_list[i]);
+          if compare.is_ne() { return compare; }
+        }
+        my_list.len().cmp(&their_list.len())
+      },
+      (Some(_), None) => return Packet { num: None, list: Some(vec![self.clone()])}.cmp(other),
+      (None, Some(_)) => return self.cmp(&Packet { num: None, list: Some(vec![other.clone()])}),
     }
+  }
 }
 
 impl Packet {

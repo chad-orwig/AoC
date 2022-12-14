@@ -56,24 +56,24 @@ impl<'a> FunctionallySplittable<'a> for str {
 }
 
 impl<'a> Iterator for FunctionalSplit<'a> {
-    type Item = &'a str;
+  type Item = &'a str;
 
-    fn next(&mut self) -> Option<Self::Item> {
-      if self.finished { return None; }
-      let i = (self.next_index)(&self.line[self.loc..]);
+  fn next(&mut self) -> Option<Self::Item> {
+    if self.finished { return None; }
+    let i = (self.next_index)(&self.line[self.loc..]);
 
-      let start = self.loc.clone();
+    let start = self.loc.clone();
 
-      match i {
-        Some(index) => {
-          self.loc = start + index + 1;
-          self.finished = self.loc == self.line.len();
-          return Some(&self.line[start..index + start]);
-        }
-        None => {
-          self.finished = true;
-          return if self.loc == self.line.len() { None } else { Some(&self.line[self.loc..])}
-        }
+    match i {
+      Some(index) => {
+        self.loc = start + index + 1;
+        self.finished = self.loc == self.line.len();
+        return Some(&self.line[start..index + start]);
+      }
+      None => {
+        self.finished = true;
+        return if self.loc == self.line.len() { None } else { Some(&self.line[self.loc..])}
       }
     }
+  }
 }
