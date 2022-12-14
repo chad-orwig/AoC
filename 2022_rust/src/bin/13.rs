@@ -1,4 +1,5 @@
-use std::{cmp::{min}, fmt::{Debug, Error}};
+use std::{cmp::{min}, fmt::Debug};
+use crate::Packet::{List, Num};
 
 use lib::{inputs::d13::PRIMARY, strings::FunctionallySplittable};
 
@@ -19,8 +20,8 @@ impl Debug for Packet {
   fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
 
     match self {
-      Packet::Num(n) => n.fmt(f),
-      Packet::List(l) => f.debug_list().entries(l).finish(),
+      Num(n) => n.fmt(f),
+      List(l) => f.debug_list().entries(l).finish(),
     }
   }
 }
@@ -34,8 +35,8 @@ impl PartialOrd for Packet {
 impl Ord for Packet {
   fn cmp(&self, other: &Self) -> std::cmp::Ordering {
     match (self, other) {
-      (Packet::Num(my_num), Packet::Num(their_num)) => return my_num.cmp(their_num),
-      (Packet::List(my_list), Packet::List(their_list)) => {
+      (Num(my_num), Num(their_num)) => return my_num.cmp(their_num),
+      (List(my_list), List(their_list)) => {
         let max_length = min(my_list.len(), their_list.len());
         for i in 0..max_length {
           let compare = my_list[i].cmp(&their_list[i]);
@@ -43,8 +44,8 @@ impl Ord for Packet {
         }
         my_list.len().cmp(&their_list.len())
       },
-      (Packet::Num(_), Packet::List(_)) => return Packet::List(vec![self.clone()]).cmp(other),
-      (Packet::List(_), Packet::Num(_)) => return self.cmp(&Packet::List(vec![other.clone()])),
+      (Num(_), List(_)) => return List(vec![self.clone()]).cmp(other),
+      (List(_), Num(_)) => return self.cmp(&List(vec![other.clone()])),
     }
   }
 }
@@ -52,13 +53,13 @@ impl Ord for Packet {
 impl Packet {
      fn as_list(self) -> Vec<Packet> {
       match self {
-        Packet::Num(_) => panic!("Tried to get a num as list"),
-        Packet::List(l ) => l,
+        Num(_) => panic!("Tried to get a num as list"),
+        List(l ) => l,
       }
     }
     fn from(line: &str) -> Result<Self, String> {
       if !line.starts_with("[") { 
-        return Ok(Packet::Num(line.parse().map_err(|_| "Failed to parse num")?));
+        return Ok(Num(line.parse().map_err(|_| "Failed to parse num")?));
       }
       
       let list: Result<Vec<Packet>, String> = line.strip_prefix("[").ok_or("prefix wrong")
@@ -67,7 +68,7 @@ impl Packet {
         .map(Packet::from)
         .collect();
 
-      Ok(Packet::List(list?))
+      Ok(List(list?))
     }
 }
 
@@ -121,7 +122,7 @@ fn main() {
 
   let mut packets: Vec<_> = pairs.into_iter()
     .flat_map(|pair|vec![pair.left, pair.right].into_iter())
-    .map(|list| Packet::List(list))
+    .map(|list| List(list))
     .collect();
 
   let dividers = (Packet::from("[[2]]").unwrap(), Packet::from("[[6]]").unwrap());
