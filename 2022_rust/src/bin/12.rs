@@ -1,6 +1,6 @@
 use std::{collections::HashMap, cmp::Reverse, ops::Add};
 
-use lib::{inputs::d12::PRIMARY, utils::search::{Searchable, search}};
+use lib::{inputs::d12::PRIMARY, search::{Searchable, search}};
 use num::{Signed, abs};
 
 #[derive(PartialEq, Eq, Hash, Debug)]
