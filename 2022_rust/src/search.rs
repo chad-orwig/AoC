@@ -11,6 +11,7 @@ pub trait Searchable<K: Hash + Eq, P: Ord> {
 pub fn search<S: Searchable<K, P> + Eq + Hash, K: Eq + Hash, P: Ord>(
   start: Vec<S>,
   find_next_states: impl Fn(&S) -> Vec<S>,
+  max_q: Option<(usize, usize)>
 ) -> Option<S> {
   let mut seen = HashSet::new();
   let mut q = PriorityQueue::new();
@@ -33,6 +34,18 @@ pub fn search<S: Searchable<K, P> + Eq + Hash, K: Eq + Hash, P: Ord>(
         let priority = s.priority();
         q.push(s, priority);
       });
+
+    match max_q {
+      Some(m) => {
+        if q.len() > m.0 {
+          println!("shrink");
+          q = q.into_iter()
+            .take(m.1)
+            .collect();
+        }
+      },
+      _ => ()
+    };
   }
 
   None

@@ -104,7 +104,7 @@ fn main() {
       .collect()
   };
   println!("start: {:?}; end: {:?}", start, end);
-  let p1 = search(vec![starting_state], next_states).unwrap();
+  let p1 = search(vec![starting_state], next_states, None).unwrap();
 
   println!("{:?}", p1);
 
@@ -118,7 +118,7 @@ fn main() {
     })
     .collect();
 
-    let p2 = search(a_locs, next_states).unwrap();
+    let p2 = search(a_locs, next_states, None).unwrap();
 
     println!("{:?}", p2);
 
