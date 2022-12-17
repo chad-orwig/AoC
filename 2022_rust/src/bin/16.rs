@@ -233,7 +233,6 @@ fn main() {
     let total_time = curr.total_remaining_time();
 
     if total_time < least_total_time.get() {
-      println!("{}", total_time);
       least_total_time.set(total_time);
     }
     
