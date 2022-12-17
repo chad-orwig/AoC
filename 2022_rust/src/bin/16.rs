@@ -158,11 +158,22 @@ fn main() {
     .map(|c|(String::from(&c[1]), c[2].parse::<u64>().unwrap()))
     .collect::<HashMap<_, _>>();
 
+  let active_valves = flow_rates.iter()
+    .filter(|(_, r)| **r > 0)
+    .map(|(k,_)| k.clone())
+    .collect::<HashSet<_>>();
+
   let tunnel_count = direct_routes.len();
 
   let total_routes: HashMap<String, BTreeMap<String, u64>> = direct_routes.keys()
     .map(|s| TotalRouteState::new(s.clone(), &direct_routes, tunnel_count))
     .map(find_all_routes)
+    .map(|(k, t)| {
+      let new_tree = t.into_iter()
+      .filter(|(k,_)| active_valves.contains(k))
+      .collect();
+      (k, new_tree)
+    })
     .collect();
 
   let find_next_states = |curr: &State| {
@@ -170,7 +181,9 @@ fn main() {
     let next_states = total_routes.keys()
       .filter(|k| **k != curr.loc)
       .filter(|k| !curr.open_tunnels.contains(*k))
-      .map(|k| (k, routes_from_source.get(k).unwrap()))
+      .map(|k| (k, routes_from_source.get(k)))
+      .filter(|(k, o)| matches!(o, Some(_)))
+      .map(|(k, o)| (k, o.unwrap()))
       .filter(|(_, t)| *t < &curr.remaining_time)
       .map(|(new_dest, time) | {
         let total_t = time + 1;
@@ -229,7 +242,9 @@ fn main() {
     let next_states_0 = total_routes.keys()
       .filter(|k| **k != curr.loc.0)
       .filter(|k| !curr.open_tunnels.contains(*k))
-      .map(|k| (k, routes_from_source_0.get(k).unwrap()))
+      .map(|k| (k, routes_from_source_0.get(k)))
+      .filter(|(k, o)| matches!(o, Some(_)))
+      .map(|(k, o)| (k, o.unwrap()))
       .filter(|(_, t)| *t < &curr.remaining_time.0)
       .map(|(new_dest, time) | {
         let total_t = time + 1;
@@ -250,7 +265,9 @@ fn main() {
     let next_states_1 = total_routes.keys()
       .filter(|k| **k != curr.loc.1)
       .filter(|k| !curr.open_tunnels.contains(*k))
-      .map(|k| (k, routes_from_source_1.get(k).unwrap()))
+      .map(|k| (k, routes_from_source_1.get(k)))
+      .filter(|(k, o)| matches!(o, Some(_)))
+      .map(|(k, o)| (k, o.unwrap()))
       .filter(|(_, t)| *t < &curr.remaining_time.1)
       .map(|(new_dest, time) | {
         let total_t = time + 1;
