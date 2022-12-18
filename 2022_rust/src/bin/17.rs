@@ -103,6 +103,8 @@ fn main() {
 
   let mut height = 0i64;
   let mut last = 0;
+  let mut last_i = 0;
+  let mut check_1403 = 0;
   
   let mut rocks = VecDeque::<((i64, i64), &Rock)>::with_capacity(30);
 
@@ -114,7 +116,7 @@ fn main() {
   let left = '<' as u8;
   let right = '>' as u8;
 
-  for i in 0..1000 {
+  for i in 0..2022 {
     let rock = order[i % 5];
     let mut loc = (2, height + 3 + rock.h);
 
@@ -122,7 +124,7 @@ fn main() {
 
     while !fin {
       // println!("{:?}", loc);
-      let jet = TEST.as_bytes()[jet_i % TEST.len()];
+      let jet = PRIMARY.as_bytes()[jet_i % PRIMARY.len()];
       jet_i += 1;
       let new_point = match jet {
         x if x == right => (loc.0 + 1, loc.1),
@@ -149,9 +151,19 @@ fn main() {
         if rocks.len() == 30 {
           rocks.pop_front();
         }
-        if (i + 1) % 1000 == 0 { 
-          println!("{} {} {}", height, rock.name, height - last);
+        // if (i + 1) % 2000 == 0 { 
+        //   println!("{} {} {}", height, rock.name, height - last);
+        //   last = height.clone();
+        // }
+
+        if jet_i % PRIMARY.len() == 0 { 
+          println!("{} {} {} {}", height, height - last, i + 1, i - last_i);
           last = height.clone();
+          last_i = i;
+          check_1403 = i + 1403;
+        }
+        if i == check_1403 {
+          println!("{} {}", height, height - last);
         }
       }
     }
@@ -159,27 +171,12 @@ fn main() {
 
   println!("{}", height);
 
+  // first 1757 rocks are 2722 height
+  // then, every 1755 that follow add 2747
 
-  // 1514,
-  // 1514,
-  // 1513,
-  // 1516,
-  // 1511,
-  // 1519,
-  // 1513,
-  
-  println!("{}", vec![1514,
-    1514,
-    1513,
-    1516,
-    1511,
-    1519,
-    1513,].iter().sum::<u64>()); // 10600
+  println!("{}", (1000000000000usize - 1757) / 1755); // 569800568
+  println!("{}", (1000000000000usize - 1757) % 1755); // 1403 -- this will add 2183
 
-  println!("{}", (1000000000000usize - 1000) / 7000); // 142857142
-  println!("{}", (1000000000000usize - 1000) % 7000); // 5000
-
-  // 1520 + (142857142 * 10600) + 1514 + 1514 + 1513 + 1516 + 1511
-  println!("{}", 1520usize + (142857142 * 10600) + 1514 + 1514 + 1513 + 1516 + 1511);
+  println!("{}", 2722usize + (569800568 * 2747) + 2183)
 
 }
