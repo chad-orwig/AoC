@@ -1,4 +1,4 @@
-use std::{collections::{BTreeSet, HashSet}, cmp::max};
+use std::{collections::{BTreeSet, HashSet, VecDeque}, cmp::max};
 
 use lib::inputs::d17::*;
 
@@ -22,11 +22,19 @@ impl Rock {
     uniq_points.len() != self.offsets.len() + them.offsets.len()
 
   }
-  fn collide(&self, loc: &(i64, i64), other_rocks: &Vec<((i64,i64), &Rock)>) -> bool {
+  fn collide(&self, loc: &(i64, i64), other_rocks: &VecDeque<((i64,i64), &Rock)>) -> bool {
     other_rocks.into_iter()
       .find(|(their_loc, rock)| self.collides_with(&loc, rock, their_loc))
       .is_some()
   }
+}
+
+fn calc_num_blocks( cycles: usize) -> usize {
+  1756 * cycles - cycles + 1
+}
+
+fn calc_height(cycles: usize) -> usize {
+  2722 * cycles + 25 * cycles - 25
 }
 fn main() {
   let plus = Rock {
@@ -94,14 +102,19 @@ fn main() {
   let chamber_width = 7;
 
   let mut height = 0i64;
+  let mut last = 0;
   
-  let mut rocks = Vec::<((i64, i64), &Rock)>::with_capacity(2022);
+  let mut rocks = VecDeque::<((i64, i64), &Rock)>::with_capacity(30);
 
+  let check_collisions = |loc: &(i64, i64), rock: &Rock, rocks: &VecDeque<_>, height: i64| {
+    if loc.1 - rock.h > height {return false;}
+    rock.collide(loc, rocks)
+  };
   let mut jet_i = 0;
   let left = '<' as u8;
   let right = '>' as u8;
 
-  for i in 0..2022 {
+  for i in 0..1000 {
     let rock = order[i % 5];
     let mut loc = (2, height + 3 + rock.h);
 
@@ -109,7 +122,7 @@ fn main() {
 
     while !fin {
       // println!("{:?}", loc);
-      let jet = PRIMARY.as_bytes()[jet_i % PRIMARY.len()];
+      let jet = TEST.as_bytes()[jet_i % TEST.len()];
       jet_i += 1;
       let new_point = match jet {
         x if x == right => (loc.0 + 1, loc.1),
@@ -120,24 +133,53 @@ fn main() {
       if 
         new_point.0 >= 0 
         && new_point.0 + rock.w <= chamber_width
-        && !rock.collide(&new_point, &rocks) {
+        && !check_collisions(&new_point, rock, &rocks, height) {
           loc = new_point;
         }
       let new_point = (loc.0, loc.1 - 1);
 
       if new_point.1 - rock.h >= 0
-        && !rock.collide(&new_point, &rocks) {
+        && !check_collisions(&new_point, rock, &rocks, height) {
           loc = new_point;
       }
       else {
-        // println!("{:?}: {}", loc, rock.name);
         fin = true;
         height = max(height, loc.1);
-        rocks.push((loc, rock));
+        rocks.push_back((loc, rock));
+        if rocks.len() == 30 {
+          rocks.pop_front();
+        }
+        if (i + 1) % 1000 == 0 { 
+          println!("{} {} {}", height, rock.name, height - last);
+          last = height.clone();
+        }
       }
     }
   }
 
   println!("{}", height);
+
+
+  // 1514,
+  // 1514,
+  // 1513,
+  // 1516,
+  // 1511,
+  // 1519,
+  // 1513,
+  
+  println!("{}", vec![1514,
+    1514,
+    1513,
+    1516,
+    1511,
+    1519,
+    1513,].iter().sum::<u64>()); // 10600
+
+  println!("{}", (1000000000000usize - 1000) / 7000); // 142857142
+  println!("{}", (1000000000000usize - 1000) % 7000); // 5000
+
+  // 1520 + (142857142 * 10600) + 1514 + 1514 + 1513 + 1516 + 1511
+  println!("{}", 1520usize + (142857142 * 10600) + 1514 + 1514 + 1513 + 1516 + 1511);
 
 }
