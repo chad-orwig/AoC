@@ -125,7 +125,7 @@ fn main() {
       z.min(c.y),
     ));
 
-  let min = Cube { x: x - 1, y: y - 1, z: z - 1 };
+  let min = Cube { x: x - 2, y: y - 2, z: z - 2 };
 
   let (x,y,z) = lava.iter()
     .fold((i64::MIN, i64::MIN, i64::MIN), |(x,y,z), c|(
@@ -134,7 +134,7 @@ fn main() {
       z.max(c.y),
     ));
 
-  let max = Cube { x: x+1, y: y + 1, z: z + 1 };
+  let max = Cube { x: x+2, y: y + 2, z: z + 2 };
 
   let mut wall_1 = SteamWall {
     t: Min,
@@ -170,6 +170,6 @@ fn main() {
     .values()
     .map(|v| v.clone())
     .sum::<usize>();
-  println!("{}", blocked); // Off By One in both test and actual -- Not sure why
+  println!("{}", blocked);
 
 }
