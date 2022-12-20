@@ -8,7 +8,7 @@ use num::PrimInt;
 
 fn get_input<T>() -> impl Iterator<Item = T> 
 where T: PrimInt + FromStr, <T as FromStr>::Err: Debug {
-  TEST.split("\n")
+  PRIMARY.split("\n")
     .map(str::parse)
     .map(Result::unwrap)
     
@@ -28,11 +28,11 @@ fn main () {
   while seen < len {
     let mut after = cur.split_after();
     let mut before = cur.split_before();
-    println!("==========");
-    println!("{:?}", before);
-    println!("{:?}", cur.current());
-    println!("{:?}", after);
-    println!("==========");
+    // println!("==========");
+    // println!("{:?}", before);
+    // println!("{:?}", cur.current());
+    // println!("{:?}", after);
+    // println!("==========");
     match cur.remove_current() {
       None => {
         cur.splice_before(before);
@@ -105,27 +105,20 @@ fn main () {
     
   }
 
-  let actual_front = nums.iter()
+  let v0_index = nums.iter()
     .enumerate()
-    .find(|(_, (_,_, front))| *front)
+    .find(|(_, (v,_,_))| v == &0)
     .unwrap().0;
 
   
   let num_i = nums.iter().collect::<Vec<_>>();
-  let t = 4;
-  let p1 = [100 + 5,200 + 5,300 + 5].into_iter()
+  let p1 = [1000 + v0_index,2000 + v0_index,3000 + v0_index].into_iter()
     .map(|i|i % num_i.len())
     .map(|i| num_i[i])
     .map(|(v,_, _)| v)
-    .collect::<Vec<_>>();
-    // .sum::<i64>();
+    // .collect::<Vec<_>>();
+    .sum::<i64>();
 
-  println!("{:?}", num_i);
+  // println!("{:?}", num_i);
   println!("{:?}", p1);
-  
-  let demo = vec![1,2,-3,4,3,-2];
-
-  let v0_index = 4;
-
-  assert_eq!(4,  demo[(101 + v0_index) % demo.len()]);
 }
