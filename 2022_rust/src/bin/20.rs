@@ -15,11 +15,9 @@ where T: PrimInt + FromStr, <T as FromStr>::Err: Debug {
 }
 fn main () {
   let mut nums = get_input::<i64>()
-    .map(|v| (v, false, false))
+    .map(|v| (v, false))
     .collect::<LinkedList<_>>();
 
-  let f = nums.front_mut().unwrap();
-  f.2 = true;
   let len = nums.len();
 
   let mut seen = 0usize;
@@ -39,12 +37,12 @@ fn main () {
         cur.splice_after(after);
         cur.move_next();
       },
-      Some((v, true, front)) => {
-        before.push_back((v, true, front));
+      Some((v, true)) => {
+        before.push_back((v, true));
         cur.splice_before(before);
         cur.splice_after(after);
       }
-      Some((v, false, front)) => {
+      Some((v, false)) => {
         let after_len = after.len() as i64;
         let before_len = before.len() as i64;
         let half_after = after_len / 2;
@@ -64,7 +62,7 @@ fn main () {
             for _ in 0..s {
               c2.move_next();
             }
-            c2.insert_before((v, true, false));
+            c2.insert_before((v, true));
           },
           s if (half_after..after_len).contains(&s) => {
             let actual_steps = after_len - s;
@@ -72,7 +70,7 @@ fn main () {
             for _ in 0..actual_steps {
               c2.move_prev();
             }
-            c2.insert_after((v, true, false));
+            c2.insert_after((v, true));
           },
           s if (after_len..after_len + half_before).contains(&s) => {
             let actual_steps = after_len - s;
@@ -80,7 +78,7 @@ fn main () {
             for _ in 0..actual_steps {
               c2.move_next();
             }
-            c2.insert_before((v, true, false));
+            c2.insert_before((v, true));
           },
           s if (after_len + half_before..).contains(&s) => {
             let actual_steps = total_len - s;
@@ -88,13 +86,9 @@ fn main () {
             for _ in 0..actual_steps {
               c2.move_prev();
             }
-            c2.insert_after((v, true, false));
+            c2.insert_after((v, true));
           },
           _ => panic!("Weird total step amount: {}", total_steps)
-        }
-        if front {
-          let f = after.front_mut().unwrap();
-          f.2 = true;
         }
         seen += 1;
         cur.splice_after(after);
@@ -104,21 +98,19 @@ fn main () {
     }
     
   }
-
-  let v0_index = nums.iter()
-    .enumerate()
-    .find(|(_, (v,_,_))| v == &0)
-    .unwrap().0;
-
   
   let num_i = nums.iter().collect::<Vec<_>>();
+
+  let v0_index = num_i.iter() 
+    .enumerate()
+    .find(|(_,(v, _))| v == &0)
+    .unwrap().0;
   let p1 = [1000 + v0_index,2000 + v0_index,3000 + v0_index].into_iter()
     .map(|i|i % num_i.len())
     .map(|i| num_i[i])
-    .map(|(v,_, _)| v)
-    // .collect::<Vec<_>>();
+    .map(|(v,_)| v)
     .sum::<i64>();
 
-  // println!("{:?}", num_i);
   println!("{:?}", p1);
+  
 }
