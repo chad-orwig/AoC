@@ -9,7 +9,7 @@ use num::PrimInt;
 
 fn get_input<T>() -> impl Iterator<Item = T> 
 where T: PrimInt + FromStr, <T as FromStr>::Err: Debug {
-  TEST.split("\n")
+  PRIMARY.split("\n")
     .map(str::parse)
     .map(Result::unwrap)
     
@@ -26,6 +26,7 @@ fn main () {
 
   let mut cur = nums.cursor_front_mut();
   while seen < len {
+    
     let mut after = cur.split_after();
     let mut before = cur.split_before();
     // println!("==========");
@@ -112,22 +113,21 @@ fn main () {
     .map(|i| num_i[i])
     .map(|(v,_)| v)
     .sum::<i64>();
+    // .collect::<Vec<_>>();
 
-  println!("{:?}", p1);
+  // println!("{:?}", nums.iter().map(|(v,_)|v).collect::<Vec<_>>());
+  
+  println!("{}", p1);
 
 
-  let order = get_input::<i128>()
-    // .map(|v| v * 811589153)
-    .collect::<Vec<_>>();
-
-  let mut list = order
-    .clone()
-    .into_iter()
+  let mut list = get_input::<i128>()
+    .map(|v| v * 811589153)
+    .enumerate()
     .collect::<LinkedList<_>>();
 
-  for _ in 0..1 {
+  for _ in 0..10 {
     // println!("{:?}", list);
-    mix(&mut list, &order);
+    mix(&mut list);
   }
 
   let num_i = list.iter().collect::<Vec<_>>();
@@ -135,25 +135,27 @@ fn main () {
 
   let v0_index = num_i.iter() 
     .enumerate()
-    .find(|(_,v)| v == &&&0)
+    .find(|(_,(_, v))| v == &0)
     .unwrap().0;
 
   let p2 = [1000 + v0_index,2000 + v0_index,3000 + v0_index].into_iter()
     .map(|i|i % num_i.len())
     .map(|i| num_i[i])
+    .map(|(_,v)| v)
     .sum::<i128>();
+    // .collect::<Vec<_>>();
 
-  println!("{}", p2);
+  println!("{:?}", p2);
   
 }
 
-fn mix(list: &mut LinkedList<i128>, order: &Vec<i128>){
-  for v in order {
-    println!("{:?}", list);
+fn mix(list: &mut LinkedList<(usize, i128)>){
+  for id in 0..list.len() {
+    // println!("{:?}", list);
     let i = list.iter()
       .enumerate()
-      .find(|(_, v1)| v1 == &v)
-      .expect(format!("Couldn't find {}", v).as_str()).0;
+      .find(|(_, (eid, _))| eid == &id)
+      .expect(format!("Couldn't find {}", id).as_str()).0;
 
     let mut right = list.split_off(i);
 
@@ -163,7 +165,7 @@ fn mix(list: &mut LinkedList<i128>, order: &Vec<i128>){
     let num_before = list.len() as i128;
     let total = num_after + num_before;
 
-    let num_jumps = val % order.len() as i128;
+    let num_jumps = val.1 % total;
     
     if num_jumps < num_before * -1 {
       let new_i = num_jumps + total;
