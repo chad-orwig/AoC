@@ -37,13 +37,12 @@ fn get_input() -> (&'static str, &'static str) {
   PRIMARY.split_once("\n\n").unwrap()
 }
 
-struct Instructions {
-  ins: &'static str,
-}
-
 enum Turn {
   Left,
   Right,
+}
+struct Instructions {
+  ins: &'static str,
 }
 
 impl Iterator for Instructions {
@@ -268,7 +267,7 @@ fn main() {
     let section = section(p);
     match (section, dir) {
       (Section::One, Facing::Left) => {
-        let y = row_splits[3].0 - p.y;
+        let y = 151 - p.y;
         (Point { x: 1, y }, Facing::Right)
       },
       (Section::One, Facing::Up) => {
@@ -296,7 +295,7 @@ fn main() {
         (Point { x, y: 101}, Facing::Down)
       },
       (Section::Four, Facing::Left) => {
-        let y = row_splits[3].0 - p.y;
+        let y = 151 - p.y;
         (Point { x: 51, y }, Facing::Right)
       },
       (Section::Four, Facing::Up) => {
@@ -304,7 +303,7 @@ fn main() {
         (Point { x: 51, y}, Facing::Right)
       },
       (Section::Five, Facing::Right) => {
-        let y = row_splits[3].0 - p.y;
+        let y = 151 - p.y;
         (Point { x: 150, y}, Facing::Left)
       },
       (Section::Five, Facing::Down) => {
