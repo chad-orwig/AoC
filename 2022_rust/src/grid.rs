@@ -1,10 +1,12 @@
 use std::{ops::Add, collections::HashMap, hash::Hash, iter::Map};
 
+use num::abs;
+
 use crate::ChadNum;
 
 
 
-#[derive(Debug, PartialEq, Eq, Hash, Clone)]
+#[derive(Debug, PartialEq, Eq, Hash, Clone, PartialOrd, Ord)]
 pub struct Point<T: ChadNum> {
   pub x: T,
   pub y: T,
@@ -125,4 +127,31 @@ impl <K,V> FromIterator<(K, K, V)> for Grid<K,V> where K: ChadNum {
 
     Grid { grid }
   }
+}
+
+pub fn build_bounding_box<'a, T,K, V>(i: T) -> ((K, K), (K, K))
+where T: Iterator<Item = (&'a Point<K>, V)>, K: ChadNum + 'a {
+  i.fold(((K::get_max(), K::get_min()), (K::get_max(), K::get_min())), |((min_x, max_x), (min_y, max_y)), (Point {x, y}, _)|
+      (
+        (min_x.min(*x), max_x.max(*x)),
+        (min_y.min(*y), max_y.max(*y)),
+      ))
+}
+
+pub fn print_grid<'a, T,K,V>(i: T, empty: char, (x_bounds, y_bounds): &((K,K), (K,K))) 
+where T: Iterator<Item = (&'a Point<K>,V)>, K: ChadNum + 'a, V: Into<char>{
+  let width = K::one() + x_bounds.1 - x_bounds.0;
+  let height = K::one() + y_bounds.1 - y_bounds.0;
+  let mut arr = vec![vec![empty; width.as_()]; height.as_()];
+
+  i.for_each(|(Point{ x, y}, v)| {
+    let y_i = (*y - y_bounds.0).abs().as_();
+    let x_i = (*x - x_bounds.0).abs().as_();
+
+    arr[y_i][x_i] = v.into();
+  });
+
+  arr.into_iter()
+    .map(|a| a.into_iter().collect::<String>())
+    .for_each(|s| println!("{}", s));
 }

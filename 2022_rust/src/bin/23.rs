@@ -1,6 +1,6 @@
 use std::{sync::atomic::AtomicUsize, collections::HashMap, ops::Add};
 
-use lib::{inputs::d23::*, grid::{Grid, Point}};
+use lib::{inputs::d23::*, grid::{Grid, Point, build_bounding_box, print_grid}};
 use std::sync::atomic::Ordering::*;
 
 static DIRECTION_INDEX: AtomicUsize = AtomicUsize::new(0);
@@ -13,6 +13,12 @@ enum Direction {
   East,
 }
 struct Elf;
+
+impl Into<char> for &Elf {
+  fn into(self) -> char {
+    '#'
+  }
+}
 
 impl Elf {
   fn consider_direction(loc: &Point<i64>, grove: &Grid<i64, Elf>) -> Option<&'static Direction>{
@@ -100,35 +106,6 @@ fn find_proposals(grove: &Grid<i64, Elf>) -> Vec<(Point<i64>, Point<i64>)> {
     .collect()
 }
 
-fn draw_grid(grove: &Grid<i64, Elf>) {
-  
-  let (x_bounds, y_bounds) = build_bounding_box(&grove);
-  println!("=== x={} - {}; y={} - {}===", x_bounds.0, x_bounds.1, y_bounds.0, y_bounds.1);
-  let width = (x_bounds.0 - x_bounds.1).abs() as usize;
-  for y in y_bounds.0..=y_bounds.1 {
-    let mut s = String::with_capacity(width);
-
-    for x in x_bounds.0..=x_bounds.1 {
-      let c = match grove.grid.get(&Point { x, y}) {
-          Some(_) => '#',
-          None => '.',
-      };
-      s.push(c);
-    }
-    println!("{}", s);
-  }
-  println!("============");
-}
-
-fn build_bounding_box(grove: &Grid<i64, Elf>) -> ((i64, i64), (i64, i64)) {
-  grove.grid.iter()
-    .fold(((i64::MAX, i64::MIN), (i64::MAX, i64::MIN)), |((min_x, max_x), (min_y, max_y)), (Point {x, y}, _)|
-      (
-        (min_x.min(*x), max_x.max(*x)),
-        (min_y.min(*y), max_y.max(*y)),
-      ))
-}
-
 fn main () {
   let mut grove = get_input();
   // draw_grid(&grove);
@@ -147,7 +124,7 @@ fn main () {
     // draw_grid(&grove);
   }
 
-  let (x_bounds, y_bounds) = build_bounding_box(&grove);
+  let (x_bounds, y_bounds) = build_bounding_box(grove.grid.iter());
 
   let size = ((x_bounds.0 - x_bounds.1).abs() + 1) * ((y_bounds.0 - y_bounds.1).abs() + 1);
   let p1 = size - grove.grid.len() as i64;
@@ -173,5 +150,5 @@ fn main () {
     DIRECTION_INDEX.store(new_index, Release);
   }
   println!("{}", round);
-  draw_grid(&grove);
+  print_grid(grove.grid.iter(), ' ', &build_bounding_box(grove.grid.iter()));
 }
