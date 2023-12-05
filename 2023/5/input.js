@@ -355,12 +355,6 @@ MapRange.prototype.mapRange = function(input) {
       const misses = [ { start: startBefore, length: lengthBefore}, { start: startAfter, lengthAfter}];
       const filteredMisses = misses.filter(({ length }) => length > 0);
       newNotMapped.push(...filteredMisses);
-      // if (range.start === 46) {
-      //   console.log('here');
-      //   console.log({ start, length});
-      //   console.log('misses', misses);
-      //   console.log('me', this);
-      // }
     }
     else {
       // Starts in the middle of the range
@@ -376,6 +370,5 @@ MapRange.prototype.mapRange = function(input) {
   });
 
   const ans =  { mapped, notMapped: newNotMapped };
-  // console.log(ans);
   return ans;
 }
