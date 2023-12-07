@@ -13,7 +13,7 @@ function quadradicEquation(a,b,c) {
 
   return [(-b + bSquaredStuff)/ twoA, (-b - bSquaredStuff)/twoA];
 }
-
+console.time("p1")
 const p1 = raceRecords
   .map(({ time, distance }) => {
     return quadradicEquation(-1, time, -distance);
@@ -22,9 +22,11 @@ const p1 = raceRecords
   .map(([r1, r2]) => Math.max(r1,r2) - Math.min(r1,r2))
   .reduce((a,b) => a * b);
 console.log(p1);
-
+console.timeEnd("p1");
+console.time("p2")
 const p2Roots = quadradicEquation(-1, megaTime[0], -megaTime[1])
   .map(Math.ceil);
 
 
 console.log(Math.max(...p2Roots) - Math.min(...p2Roots));
+console.timeEnd("p2")
