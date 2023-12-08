@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "2023": "node runProblem.js 2023",
     "2020": "node runProblem.js 2020",
+    "2023": "node runProblem.js 2023",
     "test": "echo \"Error: no test specified\" && exit 1",
     "problem": "node runProblem.js 2019",
     "lint": "eslint 2019",
@@ -15,7 +15,7 @@
   "license": "ISC",
   "dependencies": {
     "colors": "^1.4.0",
-    "compute-lcm": "^1.1.0",
+    "compute-lcm": "^1.1.2",
     "keypress": "^0.2.1",
     "linked-list": "^3.0.1",
     "lodash": "^4.17.15",
