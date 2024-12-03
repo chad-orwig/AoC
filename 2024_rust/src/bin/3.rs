@@ -29,8 +29,8 @@ fn is_enabled_fn<'a>(do_indecies: &'a Vec<usize>, dont_indecies: &'a Vec<usize>)
 
 fn main() {
     let valid_mul = Regex::new(r"mul\((?<x>\d+),(?<y>\d+)\)").unwrap();
-    let do_regex = Regex::new(r"do()").unwrap();
-    let dont_regex = Regex::new(r"don't()").unwrap();
+    let do_regex = Regex::new(r"do\(\)").unwrap();
+    let dont_regex = Regex::new(r"don't\(\)").unwrap();
 
     let p1 = valid_mul
         .captures_iter(PRIMARY)
@@ -62,5 +62,5 @@ fn main() {
         .map(|(x,y)| x * y)
         .sum::<i64>();
     println!("{:?}", p2);
-    
+
 }
