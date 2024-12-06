@@ -1,12 +1,18 @@
 use strum_macros::EnumIter;
+use subenum::subenum;
 
 pub mod inputs;
 
-#[derive(Debug, EnumIter, Clone, Copy)]
+#[subenum(OrthoganalDirection)]
+#[derive(Debug, EnumIter, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum Direction {
+    #[subenum(OrthoganalDirection)]
     Left,
+    #[subenum(OrthoganalDirection)]
     Right,
+    #[subenum(OrthoganalDirection)]
     Up,
+    #[subenum(OrthoganalDirection)]
     Down,
     UpLeft,
     UpRight,
@@ -57,4 +63,14 @@ impl <T:PartialEq> RowColumn for Vec<Vec<T>> {
             Direction::DownRight => Some((row + 1, col + 1)),
         }
     }
+}
+
+pub fn search_vec_of_vecs<T:PartialEq>(map: &Vec<Vec<T>>, target: &T) -> Option<(usize, usize)>{
+    return map.iter()
+        .enumerate()
+        .flat_map(|(row_i, col)| col.iter()
+            .enumerate()
+            .find(|(_, t)| target.eq(*t))
+            .map(|(col_i, _)| (row_i, col_i))
+        ).next();
 }
