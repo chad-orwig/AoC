@@ -1,7 +1,8 @@
-use std::{collections::HashSet, io::Empty, str::FromStr};
+use std::{collections::HashSet, str::FromStr};
 
 use itertools::Itertools;
 use lib::{inputs::d6::PRIMARY, search_vec_of_vecs, Direction, OrthoganalDirection, RowColumn};
+use rayon::iter::{IntoParallelIterator, ParallelIterator};
 
 
 #[derive(PartialEq, Clone)]
@@ -100,9 +101,9 @@ fn main() {
     }
     println!("{}", seen.len());
 
-    let p2 = seen.iter()
+    let p2 = seen.into_par_iter()
         .filter(|loc| !loc.eq(&&initial_guard_info.0))
-        .filter(|loc| obstruction_creates_loop(&initial_map, **loc, &initial_guard_info))
+        .filter(|loc| obstruction_creates_loop(&initial_map, *loc, &initial_guard_info))
         .count();
 
         println!("{:?}", p2);
