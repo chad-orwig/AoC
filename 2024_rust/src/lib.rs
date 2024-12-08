@@ -3,6 +3,8 @@ use subenum::subenum;
 
 pub mod inputs;
 
+pub type Loc = (usize, usize);
+
 #[subenum(OrthoganalDirection)]
 #[derive(Debug, EnumIter, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum Direction {
@@ -22,25 +24,30 @@ pub enum Direction {
 
 pub trait RowColumn {
     type Item:PartialEq;
-    fn get_rc(&self, loc:(usize, usize)) -> Option<&Self::Item>;
-    fn matches(&self, loc:(usize, usize), item:&Self::Item) -> bool {
+    fn get_rc(&self, loc:Loc) -> Option<&Self::Item>;
+    fn matches(&self, loc:Loc, item:&Self::Item) -> bool {
         return self.get_rc(loc).map(|i| i == item).unwrap_or(false);
     }
-    fn next_rc(&self, loc:(usize, usize), dir: Direction) -> Option<(usize, usize)>;
-    fn get_next_rc(&self, loc:(usize, usize), dir: Direction) -> Option<&Self::Item> {
+    fn next_rc(&self, loc:Loc, dir: Direction) -> Option<Loc>;
+    fn get_next_rc(&self, loc:Loc, dir: Direction) -> Option<&Self::Item> {
         return self.next_rc(loc, dir)
             .and_then(|next_loc| self.get_rc(next_loc));
+    }
+    fn iter_loc (&self) -> impl Iterator<Item=(Loc, &Self::Item)>;
+
+    fn if_exists<T>(&self, item:T, loc: Loc) -> Option<T> {
+        return self.get_rc(loc).map(|_| item);
     }
 }
 
 impl <T:PartialEq> RowColumn for Vec<Vec<T>> {
     type Item = T;
     
-    fn get_rc(&self, (row, column): (usize, usize)) -> Option<&Self::Item> {
+    fn get_rc(&self, (row, column): Loc) -> Option<&Self::Item> {
         return self.get(row)?.get(column);
     }
     
-    fn next_rc(&self, (row, col):(usize, usize), dir: Direction) -> Option<(usize, usize)> {
+    fn next_rc(&self, (row, col):Loc, dir: Direction) -> Option<Loc> {
         return match dir {
             Direction::Left => Some(col)
                 .filter(|c| *c > 0)
@@ -63,9 +70,19 @@ impl <T:PartialEq> RowColumn for Vec<Vec<T>> {
             Direction::DownRight => Some((row + 1, col + 1)),
         }
     }
+    
+    fn iter_loc(&self) -> impl Iterator<Item=(Loc, &T)> {
+        return self.iter()
+            .enumerate()
+            .flat_map(|(row_i, row)| (*row).iter()
+                .enumerate()
+                .map(move |(col_i, item)| ((row_i, col_i), item))
+            );
+            
+    }
 }
 
-pub fn search_vec_of_vecs<T:PartialEq>(map: &Vec<Vec<T>>, target: &T) -> Option<(usize, usize)>{
+pub fn search_vec_of_vecs<T:PartialEq>(map: &Vec<Vec<T>>, target: &T) -> Option<Loc>{
     return map.iter()
         .enumerate()
         .flat_map(|(row_i, col)| col.iter()
@@ -73,4 +90,9 @@ pub fn search_vec_of_vecs<T:PartialEq>(map: &Vec<Vec<T>>, target: &T) -> Option<
             .find(|(_, t)| target.eq(*t))
             .map(|(col_i, _)| (row_i, col_i))
         ).next();
+}
+
+pub trait FromChar:Sized {
+    type Err;
+    fn from_char(c: char) -> Result<Self, Self::Err>;
 }

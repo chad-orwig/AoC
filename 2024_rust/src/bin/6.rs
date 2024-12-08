@@ -80,7 +80,7 @@ fn obstruction_creates_loop(initial_map: &Vec<Vec<Space>>, loc: (usize, usize), 
 }
 
 fn main() {
-    let initial_map = PRIMARY.split("\n")
+    let initial_map = PRIMARY.lines()
         .map(|line| line.split("")
             .flat_map(str::parse::<Space>)
             .collect_vec()
