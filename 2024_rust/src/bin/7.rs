@@ -3,6 +3,7 @@ use std::ops::{Add, Mul};
 use itertools::Itertools;
 use lib::inputs::d7::PRIMARY;
 use num_bigint::BigInt;
+use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 
 trait Concatenate<Rhs = Self> {
     type Output;
@@ -43,17 +44,17 @@ fn main() {
         ))
         .collect_vec();
 
-    let p1: BigInt = input.iter()
+    let p1: BigInt = input.par_iter()
         .filter(|(val, operands)| can_work(val, operands, all_ops_p1))
         .map(|(val, _)|val)
         .sum();
 
-    let p2: BigInt = input.iter()
+    let p2: BigInt = input.par_iter()
         .filter(|(val, operands)| can_work(val, operands, all_ops_p2))
         .map(|(val, _)|val)
         .sum();
 
     println!("{:?}", p1);
 
-    print!("{}", p2);
+    println!("{}", p2);
 }
