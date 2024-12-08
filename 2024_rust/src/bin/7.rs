@@ -27,7 +27,7 @@ fn all_ops_p2((left, right): (&BigInt, &BigInt)) -> Vec<BigInt> {
 fn can_work(val: &BigInt, operands: &Vec<BigInt>, ops_fn: impl Fn((&BigInt, &BigInt)) -> Vec<BigInt>) -> bool {
     let results = operands[1..].iter()
         .fold(vec![operands[0].clone()], |left_vec, right| left_vec.iter()
-            .flat_map(|left| ops_fn((left, right)))
+            .flat_map(|left| if left > val { vec![left.clone()] } else { ops_fn((left, right)) })
             .collect_vec()
         );
     return results.iter().any(|result| result.eq(val));
@@ -56,5 +56,5 @@ fn main() {
 
     println!("{:?}", p1);
 
-    println!("{}", p2);
+    print!("{}", p2);
 }
