@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use itertools::{iproduct, Itertools};
-use lib::{inputs::d8::{PRIMARY, TEST}, FromChar, Loc, RowColumn};
+use lib::{inputs::d8::PRIMARY, FromChar, Loc, RowColumn};
 
 #[derive(Debug, PartialEq, Eq, Clone, Copy, Hash)]
 enum Space {
