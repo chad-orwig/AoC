@@ -2,6 +2,7 @@ use std::{collections::HashMap, fmt::{self, Formatter}, str::FromStr, vec::IntoI
 
 use itertools::Itertools;
 use lib::inputs::d11::{PRIMARY, TEST};
+use timelog::Timer;
 
 #[derive(Clone, PartialEq, Eq, Hash)]
 struct Stone {
@@ -52,8 +53,32 @@ impl IntoIterator for Stone {
         }
     }
 }
+
+fn stone_stuff<'a>(stone: Stone, blinks: u32, cache: &'a mut HashMap<String, u128>) -> u128 {
+
+    if blinks == 0 { return 1; }
+    let key = format!("{}-{}", stone.num, blinks);
+    if cache.contains_key(&key) {
+        return cache.get(&key).unwrap().clone();
+    }
+    let s = stone.to_string();
+    let result =  match (stone.num, s.len() % 2) {
+        (0, _) => stone_stuff(Stone{ num: 1 }, blinks-1, cache),
+        (_, 0) => {
+            let (s1, s2) = s.split_at(s.len() / 2);
+            stone_stuff(Stone::from_str(s1).unwrap(), blinks - 1, cache) +
+                stone_stuff(Stone::from_str(s2).unwrap(), blinks - 1, cache)
+        }
+        _ => {
+            let new_num = stone.num * 2024;
+            stone_stuff(Stone{ num: new_num}, blinks - 1, cache)
+        }
+    };
+    cache.insert(key, result);
+    return result;
+}
 fn main() {
-    let original_input = PRIMARY.split_whitespace()
+    let original_input = TEST.split_whitespace()
         .flat_map(Stone::from_str)
         .collect_vec();
 
@@ -64,6 +89,9 @@ fn main() {
     }
 
     println!("{}", p1_vec.len());
+
+    let mut timer = Timer::new();
+    timer.time("counts only");
 
     let mut p2_counts= original_input.clone().into_iter()
         .counts();
@@ -80,7 +108,19 @@ fn main() {
 
     }
     let p2:usize = p2_counts.values().sum();
+    timer.time_end("counts only", false);
 
     println!("{}", p2);
+
+    timer.time("memo");
+
+    let mut stone_memo:HashMap<String, u128> = HashMap::new();
+
+    let p2_memo = original_input.into_iter()
+        .fold(0, |sum: u128, stone| sum + stone_stuff(stone, 75, &mut stone_memo));
+
+    timer.time_end("memo", false);
+    println!("{p2_memo}");
+
 
 }
