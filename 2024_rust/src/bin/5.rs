@@ -39,7 +39,7 @@ fn fix_update(update: &Vec<i64>, rules_ref: &HashMap<i64, Vec<usize>>, rules: &V
                 .map(|i| rules.get(*i))
                 .flatten()
         )
-        .map(|mut rules_about_page| rules_about_page
+        .map(|rules_about_page| rules_about_page
             .filter(|rule| !rule_is_ok(&seen, rule, &page))
             .collect_vec()
         ).unwrap();

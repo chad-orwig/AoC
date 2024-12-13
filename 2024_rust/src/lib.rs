@@ -22,6 +22,26 @@ pub enum Direction {
     DownRight,
 }
 
+pub trait Travel {
+    fn travel(&self, dir: Direction) -> Option<Loc>;
+}
+
+impl Travel for Loc {
+    fn travel(&self, dir: Direction) -> Option<Loc> {
+        return match (dir, self.0, self.1) {
+            (Direction::Left, _, 1..) => Some((self.0, self.1 - 1)),
+            (Direction::Right, _, _) => Some((self.0, self.1 + 1)),
+            (Direction::Up, 1.., _) => Some((self.0 - 1, self.1)),
+            (Direction::Down, _, _) => Some((self.0 + 1, self.1)),
+            (Direction::UpLeft, 1.., 1..) => Some((self.0 - 1, self.1 - 1)),
+            (Direction::UpRight, 1.., _) => Some((self.0 - 1, self.1 + 1)),
+            (Direction::DownLeft, _, 1..) => Some((self.0 + 1, self.1 - 1)),
+            (Direction::DownRight, _, _) => Some((self.0 + 1, self.1 + 1)),
+            _ => None
+        }
+    }
+}
+
 pub trait RowColumn {
     type Item:PartialEq;
     fn get_rc(&self, loc:Loc) -> Option<&Self::Item>;
@@ -47,28 +67,8 @@ impl <T:PartialEq> RowColumn for Vec<Vec<T>> {
         return self.get(row)?.get(column);
     }
     
-    fn next_rc(&self, (row, col):Loc, dir: Direction) -> Option<Loc> {
-        return match dir {
-            Direction::Left => Some(col)
-                .filter(|c| *c > 0)
-                .map(|c| (row, c - 1)),
-            Direction::Right => Some((row, col + 1)),
-            Direction::Up => Some(row)
-                .filter(|r|*r > 0)
-                .map(|r|(r - 1, col)),
-            Direction::Down => Some((row + 1, col)),
-            Direction::UpLeft => Some((row, col))
-                .filter(|(r, _c)|*r > 0)
-                .filter(|(_r, c)| *c > 0)
-                .map(|(r,c)| (r - 1, c - 1)),
-            Direction::UpRight => Some(row)
-                .filter(|r|*r > 0)
-                .map(|r|(r - 1, col + 1)),
-            Direction::DownLeft => Some(col)
-                .filter(|c| *c > 0)
-                .map(|c| (row + 1, c - 1)),
-            Direction::DownRight => Some((row + 1, col + 1)),
-        }
+    fn next_rc(&self, loc:Loc, dir: Direction) -> Option<Loc> {
+        return loc.travel(dir);
     }
     
     fn iter_loc(&self) -> impl Iterator<Item=(Loc, &T)> {

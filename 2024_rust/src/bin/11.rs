@@ -1,7 +1,7 @@
 use std::{collections::HashMap, fmt::{self, Formatter}, str::FromStr, vec::IntoIter};
 
 use itertools::Itertools;
-use lib::inputs::d11::{PRIMARY, TEST};
+use lib::inputs::d11::PRIMARY;
 use timelog::Timer;
 
 #[derive(Clone, PartialEq, Eq, Hash)]
@@ -78,7 +78,7 @@ fn stone_stuff<'a>(stone: Stone, blinks: u32, cache: &'a mut HashMap<String, u12
     return result;
 }
 fn main() {
-    let original_input = TEST.split_whitespace()
+    let original_input = PRIMARY.split_whitespace()
         .flat_map(Stone::from_str)
         .collect_vec();
 
