@@ -3,17 +3,17 @@ use lib::{inputs::d10::PRIMARY, Direction, Loc, OrthoganalDirection, RowColumn};
 use strum::IntoEnumIterator;
 
 struct PotentialTrail<'a> {
-    head: Loc,
+    head: Loc<usize>,
     map: &'a Vec<Vec<u32>>,
 }
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone, Copy)]
 struct Trail {
-    head: Loc,
+    head: Loc<usize>,
     score: usize,
     rating: usize,
 }
 
-fn steps(trail_map: &Vec<Vec<u32>>, loc: Loc) -> impl Iterator<Item = Loc> + use<'_> {
+fn steps(trail_map: &Vec<Vec<u32>>, loc: Loc<usize>) -> impl Iterator<Item = Loc<usize>> + use<'_> {
     let current_height = *trail_map.get_rc(loc).unwrap();
     return OrthoganalDirection::iter()
         .flat_map(move |dir| trail_map.next_rc(loc, Direction::from(dir)))

@@ -12,12 +12,12 @@ struct GardenMap {
 
 #[derive(Clone, Hash, PartialEq, Eq)]
 struct Plot {
-    loc: Loc,
+    loc: Loc<usize>,
     neighbors: Vec<OrthoganalDirection>,
 }
 
 impl Plot {
-    fn is_neighbor(&self, loc: &Loc) -> Option<OrthoganalDirection> {
+    fn is_neighbor(&self, loc: &Loc<usize>) -> Option<OrthoganalDirection> {
         match (self.loc.0 as isize - loc.0 as isize, self.loc.1 as isize - loc.1 as isize) {
             (1,0) => Some(OrthoganalDirection::Down),
             (-1, 0) => Some(OrthoganalDirection::Up),
@@ -26,7 +26,7 @@ impl Plot {
             _ => None
         }
     }
-    fn new(loc: Loc) -> Plot {
+    fn new(loc: Loc<usize>) -> Plot {
         return Plot {
             loc,
             neighbors: Vec::new(),
@@ -58,7 +58,7 @@ impl Compressable<Region> for Vec<Region> {
 }
 
 impl GardenMap {
-    fn place_plot(&mut self, loc: Loc) {
+    fn place_plot(&mut self, loc: Loc<usize>) {
         let plant_type = self.raw.get_rc(loc).unwrap();
         let plot = Plot::new(loc);
         let regions_for_plant = self.regions.remove(plant_type).unwrap_or(Vec::new());
@@ -93,7 +93,7 @@ trait AreaAndPerim {
     }
 }
 
-fn remove_related(locs: &mut BTreeSet<&Loc>, loc: &Loc, dir: Direction) {
+fn remove_related(locs: &mut BTreeSet<&Loc<usize>>, loc: &Loc<usize>, dir: Direction) {
     let next = loc.travel(dir).filter(|l| locs.remove(l));
     if let Some(l) = next {
         remove_related(locs, &l, dir);
@@ -112,7 +112,7 @@ impl AreaAndPerim for Region {
     }
     
     fn num_sides_dir(&self, dir: OrthoganalDirection) -> usize {
-        let mut side_locs: BTreeSet<&Loc> = self.iter()
+        let mut side_locs: BTreeSet<&Loc<usize>> = self.iter()
             .filter(|p| !p.neighbors.contains(&dir))
             .map(|p| &p.loc)
             .collect();
