@@ -1,6 +1,7 @@
 use std::cmp::Ordering;
 
-use num::PrimInt;
+use num::{PrimInt, Signed, Unsigned};
+use num_traits::ops::overflowing::OverflowingSub;
 use strum_macros::EnumIter;
 use subenum::subenum;
 
@@ -29,16 +30,19 @@ pub trait Travel <T:PrimInt> {
     fn travel(&self, dir: Direction) -> Option<Loc<T>>;
 }
 
-impl <T: PrimInt> Travel<T> for Loc<T> {
+impl <T:PrimInt + OverflowingSub> Travel<T> for Loc<T>{
     fn travel(&self, dir: Direction) -> Option<Loc<T>> {
-        return match (dir, self.0.cmp(&T::zero()), self.1.cmp(&T::zero())) {
-            (Direction::Left, _, Ordering::Greater) => Some((self.0, self.1 - T::one())),
+        let one = T::one();
+        let (neg_y, overflow_y) = self.0.overflowing_sub(&one);
+        let (neg_x, overflow_x) = self.1.overflowing_sub(&one);
+        return match (dir, overflow_y, overflow_x) {
+            (Direction::Left, _, false) => Some((self.0, neg_x)),
             (Direction::Right, _, _) => Some((self.0, self.1 + T::one())),
-            (Direction::Up, Ordering::Greater, _) => Some((self.0 - T::one(), self.1)),
+            (Direction::Up, false, _) => Some((neg_y, self.1)),
             (Direction::Down, _, _) => Some((self.0 + T::one(), self.1)),
-            (Direction::UpLeft, Ordering::Greater, Ordering::Greater) => Some((self.0 - T::one(), self.1 - T::one())),
-            (Direction::UpRight, Ordering::Greater, _) => Some((self.0 - T::one(), self.1 + T::one())),
-            (Direction::DownLeft, _, Ordering::Greater) => Some((self.0 + T::one(), self.1 - T::one())),
+            (Direction::UpLeft, false, false) => Some((neg_y,neg_x)),
+            (Direction::UpRight, false, _) => Some((neg_y, self.1 + T::one())),
+            (Direction::DownLeft, _, false) => Some((self.0 + T::one(), neg_x)),
             (Direction::DownRight, _, _) => Some((self.0 + T::one(), self.1 + T::one())),
             _ => None
         }
