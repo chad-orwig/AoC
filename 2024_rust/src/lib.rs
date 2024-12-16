@@ -1,6 +1,6 @@
-use std::cmp::Ordering;
+use std::{collections::HashMap, fmt::{self, Display, Formatter}, hash::Hash};
 
-use num::{PrimInt, Signed, Unsigned};
+use num::PrimInt;
 use num_traits::ops::overflowing::OverflowingSub;
 use strum_macros::EnumIter;
 use subenum::subenum;
@@ -89,6 +89,26 @@ impl <T:PartialEq> RowColumn<usize> for Vec<Vec<T>> {
     
 }
 
+impl <T:PartialEq, L:PrimInt+Hash+OverflowingSub> RowColumn<L> for HashMap<Loc<L>, T> {
+    type Item = T;
+
+    fn get_rc(&self, loc:Loc<L>) -> Option<&Self::Item> {
+        return self.get(&loc)
+    }
+
+    fn next_rc(&self, loc:Loc<L>, dir: Direction) -> Option<Loc<L>> {
+        return loc.travel(dir);
+    }
+    
+    fn iter_loc<'a> (&'a self) -> impl Iterator<Item=(Loc<L>, &'a Self::Item)> where <Self as RowColumn<L>>::Item: 'a {
+        self.iter()
+            .map(|(l, t)| (l.clone(), t))
+    }
+    
+    
+
+}
+
 pub fn search_vec_of_vecs<T:PartialEq>(map: &Vec<Vec<T>>, target: &T) -> Option<Loc<usize>>{
     return map.iter()
         .enumerate()
@@ -102,4 +122,29 @@ pub fn search_vec_of_vecs<T:PartialEq>(map: &Vec<Vec<T>>, target: &T) -> Option<
 pub trait FromChar:Sized {
     type Err;
     fn from_char(c: char) -> Result<Self, Self::Err>;
+}
+pub struct ParseOrthoganalDirectionErr;
+impl FromChar for OrthoganalDirection {
+    type Err = ParseOrthoganalDirectionErr;
+
+    fn from_char(c: char) -> Result<Self, Self::Err> {
+        match c {
+            '^' => Ok(OrthoganalDirection::Up),
+            '>' => Ok(OrthoganalDirection::Right),
+            'v' => Ok(OrthoganalDirection::Down),
+            '<' => Ok(OrthoganalDirection::Left),
+            _ => Err(ParseOrthoganalDirectionErr),
+        }
+    }
+}
+
+impl Display for OrthoganalDirection {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result{
+        match self {
+            OrthoganalDirection::Left => write!(f, "<"),
+            OrthoganalDirection::Right => write!(f, ">"),
+            OrthoganalDirection::Up => write!(f, "^"),
+            OrthoganalDirection::Down => write!(f, "v"),
+        }
+    }
 }
