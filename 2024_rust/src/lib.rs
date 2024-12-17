@@ -6,11 +6,12 @@ use strum_macros::EnumIter;
 use subenum::subenum;
 
 pub mod inputs;
+pub mod search;
 
 pub type Loc<T: PrimInt> = (T, T);
 
 #[subenum(OrthoganalDirection)]
-#[derive(Debug, EnumIter, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, EnumIter, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub enum Direction {
     #[subenum(OrthoganalDirection)]
     Left,
