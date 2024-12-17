@@ -1,4 +1,4 @@
-use std::{collections::BTreeSet, hash::Hash};
+use std::{hash::Hash, fmt::Debug};
 
 use priority_queue::PriorityQueue;
 
@@ -8,30 +8,40 @@ pub trait Searchable: Hash + Eq {
     fn next_states(&self) -> impl Iterator<Item = Self>;
     fn priority(&self) -> Self::PriorityType;
     fn complete(&self) -> bool;
-    fn key(&self) -> Self::KeyType;
+    fn merge(self, priority: Self::PriorityType, other: Self, other_priority: Self::PriorityType) -> Self;
 }
 
-pub fn search<T: Searchable>(initial: Vec<T>) -> Option<(T, PriorityQueue<T, T::PriorityType>, BTreeSet<T::KeyType>)> {
+pub fn search<T: Searchable+Debug>(initial: Vec<T>) -> Option<(T, PriorityQueue<T, T::PriorityType>)> {
     let mut q = PriorityQueue::new();
-    let mut seen = BTreeSet::new();
     initial.into_iter()
         .for_each(|item| {
             let priority = item.priority();
             q.push(item, priority);
         });
-
+    let mut count = 0;
     while let Some((item, _)) = q.pop() {
-        if item.complete() { return Some((item, q, seen)); }
+        if item.complete() { return Some((item, q)); }
         
         for new_item in item.next_states() {
-            if !seen.contains(&new_item.key()) {
-                let priority = new_item.priority();
+            let priority = new_item.priority();
+            let other_option = q.remove(&new_item);
+            if let Some((other, other_priority)) = other_option  {
+                let merged_item = new_item.merge(priority, other, other_priority);
+                let merged_priority = merged_item.priority();
+                q.push(merged_item, merged_priority);
+            }
+            else{
                 q.push(new_item, priority);
             }
+            
         }
-        seen.insert(item.key());
+        if count == 100000 {
+            count = 0;
+            println!("{:?}", item);
+        }
+        else {
+            count += 1;
+        }
     }
-
     return None;
-
 }

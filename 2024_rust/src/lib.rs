@@ -149,3 +149,12 @@ impl Display for OrthoganalDirection {
         }
     }
 }
+
+impl OrthoganalDirection {
+    pub fn turn(&self) -> [OrthoganalDirection; 2] {
+        match self {
+            OrthoganalDirection::Left | OrthoganalDirection::Right => [OrthoganalDirection::Down, OrthoganalDirection::Up],
+            OrthoganalDirection::Up |OrthoganalDirection::Down => [OrthoganalDirection::Left, OrthoganalDirection::Right],
+        }
+    }
+}

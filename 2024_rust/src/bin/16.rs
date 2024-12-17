@@ -1,4 +1,4 @@
-use std::{cmp::Reverse, fmt::{self, Debug, Formatter}, hash::{Hash, Hasher}};
+use std::{cmp::Reverse, collections::{BTreeSet, HashSet}, fmt::{self, Debug, Formatter}, hash::{DefaultHasher, Hash, Hasher}};
 
 use itertools::Itertools;
 use lib::{inputs::d16::{PRIMARY, TEST}, search::{search, Searchable}, FromChar, Loc, OrthoganalDirection, RowColumn, Travel};
@@ -8,6 +8,7 @@ struct Runner<'a> {
     score: usize,
     loc: Loc<usize>,
     maze: &'a Maze,
+    seen: BTreeSet<Loc<usize>>,
 }
 
 impl Debug for Runner<'_> {
@@ -24,13 +25,12 @@ impl Hash for Runner<'_> {
     fn hash<H: Hasher>(&self, state: &mut H) {
         self.dir.hash(state);
         self.loc.hash(state);
-        self.score.hash(state);
     }
 }
 
 impl PartialEq for Runner<'_> {
     fn eq(&self, other: &Runner) -> bool {
-        self.dir == other.dir && self.loc == other.loc && self.score == other.score
+        self.dir == other.dir && self.loc == other.loc
     }
 }
 
@@ -70,55 +70,83 @@ impl FromChar for Tile {
 }
 
 impl <'a> Runner<'a> {
-    fn turn(&self) -> [Runner<'a>; 2] {
+    fn required_turns_penalty(&self) -> usize {
         match self.dir {
-            OrthoganalDirection::Left | OrthoganalDirection::Right => [
-                Runner { loc: self.loc.clone(), dir: OrthoganalDirection::Down, score: 1000 + self.score, maze: self.maze },
-                Runner { loc: self.loc.clone(), dir: OrthoganalDirection::Up, score: 1000 + self.score, maze: self.maze }
-            ],
-            OrthoganalDirection::Up | OrthoganalDirection::Down => [
-                Runner { loc: self.loc.clone(), dir: OrthoganalDirection::Left, score: 1000 + self.score, maze: self.maze },
-                Runner { loc: self.loc.clone(), dir: OrthoganalDirection::Right, score: 1000 + self.score, maze: self.maze }
-            ],
+            OrthoganalDirection::Left => 1000,
+            OrthoganalDirection::Right => 1000,
+            OrthoganalDirection::Up => 0,
+            OrthoganalDirection::Down => 2000,
         }
+    }
+    fn turn(&self) -> [Runner<'a>; 2] {
+        self.dir.turn()
+            .map(|dir|Runner { loc: self.loc.clone(), dir, score: 1000 + self.score, maze: self.maze, seen: self.seen.clone() })
     }
     fn travel(&self) -> Option<Runner<'a>> {
         let loc = self.loc.travel(self.dir.into()).unwrap();
         match self.maze.map.get_rc(loc) {
             Some(Tile::Wall) | None => None,
             _ => {
-                Some(Runner { dir: self.dir, score: self.score + 1, loc, maze: self.maze })
+                let mut seen = self.seen.clone();
+                seen.insert(loc);
+                Some(Runner { dir: self.dir, score: self.score + 1, loc, maze: self.maze, seen })
             }
         }
-        
+    }
+    fn travel_all(&self) -> Option<Runner<'a>> {
+        let mut prev: Option<Runner<'a>> = None;
+        let mut next = self.travel();
+        while next.is_some() {
+            let r = next.unwrap();
+            let turns = self.dir.turn()
+                .into_iter()
+                .map(OrthoganalDirection::into)
+                .flat_map(|d| r.loc.travel(d))
+                .flat_map(|l| self.maze.map.get_rc(l))
+                .filter(|t| **t != Tile::Wall)
+                .next()
+                .is_some();
+            next = r.travel();
+            prev = Some(r);
+            if turns { break; }
+        }
+        prev
     }
  }
 
 impl<'a> Searchable for Runner<'a> {
     type PriorityType=Reverse<usize>;
-    type KeyType=(Loc<usize>, OrthoganalDirection);
-
+    type KeyType=(Loc<usize>, OrthoganalDirection, u64);
+    
     fn next_states(&self) -> impl Iterator<Item = Runner<'a>> {
-        let travel = self.travel();
-        let [turn1, turn2] = self.turn();
-        [travel, Some(turn1), Some(turn2)].into_iter().flatten()
+        let travel = self.travel_all();
+        let turns = self.turn();
+        return turns.into_iter()
+            .flat_map(|r| r.travel_all())
+            .chain(travel)
     }
 
     fn priority(&self) -> Self::PriorityType {
-        Reverse(self.score + self.loc.0.abs_diff(self.maze.end.0) + self.loc.1.abs_diff(self.maze.end.1))
+        Reverse(self.score + self.loc.0.abs_diff(self.maze.end.0) + self.loc.1.abs_diff(self.maze.end.1 + self.required_turns_penalty()))
     }
 
     fn complete(&self) -> bool {
         self.loc.eq(&self.maze.end)
     }
     
-    
-    fn key(&self) -> Self::KeyType {
-        (self.loc, self.dir)
+    fn merge(mut self, priority: Self::PriorityType, mut other: Self, other_priority: Self::PriorityType) -> Self {
+        match priority.cmp(&other_priority) {
+            std::cmp::Ordering::Less => other,
+            std::cmp::Ordering::Greater => self,
+            std::cmp::Ordering::Equal => {
+                self.seen.append(&mut other.seen);
+                return self;
+            },
+        }
     }
 }
 fn main() {
-    let map = TEST.lines()
+    let map = PRIMARY.lines()
         .map(|line| line.chars()
             .flat_map(Tile::from_char)
             .collect_vec()
@@ -153,10 +181,33 @@ fn main() {
         dir: OrthoganalDirection::Right,
         score: 0,
         maze: &maze,
+        seen: BTreeSet::from_iter([maze.start]),
     };
 
-    let (p1, _, _) = search(vec![init]).unwrap();
+    let (p1, mut q) = search(vec![init]).unwrap();
     let score = p1.score;
     println!("{score}");
+
+    let mut winners = vec![p1];
+
+    while let Some((r, _)) = q.pop() {
+        if r.score > score { break }
+        else if r.complete() { winners.push(r) }
+        else {
+            for new_item in r.next_states() {
+                let priority = new_item.priority();
+                q.push(new_item, priority);
+                
+            }
+        }
+    }
+    let p2 = winners.into_iter()
+        .flat_map(|r| r.seen.into_iter())
+        .unique()
+        .sorted()
+        .unique()
+        .count();
+
+    println!("{:?}", p2);
 
 }
