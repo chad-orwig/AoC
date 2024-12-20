@@ -7,6 +7,7 @@ use subenum::subenum;
 
 pub mod inputs;
 pub mod search;
+pub mod print;
 
 pub type Loc<T: PrimInt> = (T, T);
 

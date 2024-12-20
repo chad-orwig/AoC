@@ -116,7 +116,6 @@ impl <'a> Runner<'a> {
 
 impl<'a> Searchable for Runner<'a> {
     type PriorityType=Reverse<usize>;
-    type KeyType=(Loc<usize>, OrthoganalDirection, u64);
     
     fn next_states(&self) -> impl Iterator<Item = Runner<'a>> {
         let travel = self.travel_all();
@@ -184,7 +183,7 @@ fn main() {
         seen: BTreeSet::from_iter([maze.start]),
     };
 
-    let (p1, mut q) = search(vec![init]).unwrap();
+    let (p1, mut q) = search(vec![init], true).unwrap();
     let score = p1.score;
     println!("{score}");
 

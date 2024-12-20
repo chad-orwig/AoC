@@ -2,7 +2,7 @@ use core::time;
 use std::{collections::{HashMap, HashSet}, fmt::{self, Display, Formatter}, thread};
 
 use itertools::Itertools;
-use lib::{inputs::d15::{PRIMARY, TEST}, Direction, FromChar, Loc, OrthoganalDirection, Travel};
+use lib::{inputs::d15::{PRIMARY, TEST}, print::Printable, Direction, FromChar, Loc, OrthoganalDirection, Travel};
 use priority_queue::PriorityQueue;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
@@ -90,9 +90,6 @@ impl Display for Thing2 {
 
 type ThingMap = HashMap<Loc<usize>, Thing>;
 type Thing2Map = HashMap<Loc<usize>, Thing2>;
-trait Printable {
-    fn print(&self);
-}
 
 fn slice(map: &mut ThingMap, robot_loc: Loc<usize>, dir: OrthoganalDirection) -> Vec<Thing> {
     let mut res = vec![map.remove(&robot_loc).unwrap()];
@@ -190,21 +187,6 @@ fn move_the_things_2(map: &mut Thing2Map, set: HashSet<Loc<usize>>, dir: Orthoga
     
 }
 
-impl <T: Display+Default>Printable for HashMap<Loc<usize>, T> {
-    fn print(&self) {
-        let (max_y, max_x) = self.keys()
-            .cloned()
-            .reduce(|(curr_y,curr_x), (new_y, new_x)|(curr_y.max(new_y), curr_x.max(new_x)))
-            .unwrap();
-        for y in 0..=max_y {
-            for x in 0..=max_x {
-                print!("{}", self.get(&(y,x)).unwrap_or(&T::default()))
-            }
-            println!();
-        }
-    }
-}
-
 fn execute_command(map: &mut ThingMap, robot_loc: Loc<usize>, dir: OrthoganalDirection, slice: Vec<Thing>) -> Loc<usize> {
     
     let d = dir.into();
@@ -231,7 +213,7 @@ fn execute_command(map: &mut ThingMap, robot_loc: Loc<usize>, dir: OrthoganalDir
 }
 
 fn main() {
-    let [map_in, commands_in] = PRIMARY.split("\n\n").collect_vec()[..] else { panic!() };
+    let [map_in, commands_in] = TEST.split("\n\n").collect_vec()[..] else { panic!() };
 
     let mut p1_map: ThingMap = map_in.lines()
         .enumerate()
