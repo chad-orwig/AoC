@@ -1,6 +1,6 @@
 use std::{collections::HashMap, fmt::{self, Display, Formatter}, hash::Hash};
 
-use num::PrimInt;
+use num::{PrimInt, Unsigned};
 use num_traits::ops::overflowing::OverflowingSub;
 use strum_macros::EnumIter;
 use subenum::subenum;
@@ -157,5 +157,35 @@ impl OrthoganalDirection {
             OrthoganalDirection::Left | OrthoganalDirection::Right => [OrthoganalDirection::Down, OrthoganalDirection::Up],
             OrthoganalDirection::Up |OrthoganalDirection::Down => [OrthoganalDirection::Left, OrthoganalDirection::Right],
         }
+    }
+}
+
+pub trait FindLoc {
+    type LocType: PrimInt;
+    type Item;
+    fn find_loc(&self, item: &Self::Item) -> Option<Loc<Self::LocType>>;
+}
+
+impl <T:PartialEq> FindLoc for Vec<Vec<T>> {
+    type LocType = usize;
+    type Item = T;
+
+    fn find_loc(&self, item: &Self::Item) -> Option<Loc<Self::LocType>> {
+        self.iter()
+            .enumerate()
+            .flat_map(|(y, v)| v.iter()
+                .position(|t| t == item)
+                .map(move |x| (y, x))
+            ).next()
+    }
+}
+
+pub trait Distance<Rhs> {
+    fn distance(&self, other: &Rhs) -> usize;
+}
+
+impl Distance<Loc<usize>> for Loc<usize> {
+    fn distance(&self, other: &Loc<usize>) -> usize {
+        self.0.abs_diff(other.0) + self.1.abs_diff(other.1)
     }
 }

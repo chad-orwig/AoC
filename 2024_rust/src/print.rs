@@ -19,3 +19,13 @@ impl <T: Display+Default>Printable for HashMap<(usize,usize), T> {
         }
     }
 }
+
+impl <T: Display>Printable for Vec<Vec<T>> {
+    fn print(&self) {
+        self.iter()
+            .for_each(|line| {
+                line.iter().for_each(|i| print!("{i}"));
+                println!("")
+            });
+    }
+}
