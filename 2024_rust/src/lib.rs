@@ -189,3 +189,14 @@ impl Distance<Loc<usize>> for Loc<usize> {
         self.0.abs_diff(other.0) + self.1.abs_diff(other.1)
     }
 }
+
+impl From<OrthoganalDirection> for char {
+    fn from(dir: OrthoganalDirection) -> char {
+        match dir {
+            OrthoganalDirection::Left => '<',
+            OrthoganalDirection::Right => '>',
+            OrthoganalDirection::Up => '^',
+            OrthoganalDirection::Down => 'v',
+        }
+    }
+}
