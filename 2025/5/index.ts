@@ -29,6 +29,7 @@ class Range {
   private mergable(range: Range) {
     return (this.min >= range.min && this.min <= range.max)
       || (this.max >= range.min && this.max <= range.max)
+      || (this.min <= range.min && this.max >= range.max)
   }
   public mergeIn(ranges: Range[]) {
     const range = ranges.find(range => this.mergable(range));
@@ -57,16 +58,15 @@ const ingredientIds = ingredientInput.split('\n')
 const p1 = ingredientIds.filter(isFresh).length;
 
 console.log(p1);
-
 const finalizedRanges = [];
 
 while(ranges.length) {
   const range = ranges.pop() as Range;
-  if (!range.mergeIn(ranges) && ! range.mergeIn(finalizedRanges)) {
+  if (!range.mergeIn(ranges)) {
     finalizedRanges.push(range);
   }
 }
 
 const p2 = finalizedRanges.reduce((sum, range) => sum + range.length, 0);
 
-console.log(p2);
+console.timeEnd('p2');
