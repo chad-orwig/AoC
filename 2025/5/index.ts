@@ -68,5 +68,4 @@ while(ranges.length) {
 }
 
 const p2 = finalizedRanges.reduce((sum, range) => sum + range.length, 0);
-
-console.timeEnd('p2');
+console.log(p2);
